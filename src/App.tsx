@@ -1,13 +1,80 @@
 import React, { useEffect } from "react";
-import { Layout, Space, ConfigProvider, Segmented, theme } from "antd";
+import {
+  Layout,
+  Space,
+  ConfigProvider,
+  Segmented,
+  theme,
+  Dropdown,
+  Typography,
+} from "antd";
+import type { MenuProps } from "antd";
+import {
+  DownOutlined,
+  BaiduOutlined,
+  GithubOutlined,
+  HeartOutlined,
+} from "@ant-design/icons";
 import LightIcon from "@/assets/themeIcons/LightIcon.tsx";
 import DarkIcon from "@/assets/themeIcons/DarkIcon.tsx";
 import Resolver from "@/view/resolver.tsx";
 import { useThemeStore } from "@/stores/useThemeStore";
 import "@/assets/css/App.css";
 
+const { Text } = Typography;
+
 const App: React.FC = () => {
   const { themeMode, setThemeMode } = useThemeStore();
+  const items: MenuProps["items"] = [
+    {
+      key: "1",
+      label: (
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://fanyi-api.baidu.com/doc/21"
+        >
+          百度翻译API文档
+        </a>
+      ),
+      extra: "⌘D",
+      icon: <BaiduOutlined />,
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "2",
+      label: (
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://github.com/durunsong/TranslationTools"
+        >
+          github 地址
+        </a>
+      ),
+      extra: "⌘R",
+      icon: <GithubOutlined />,
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "3",
+      label: (
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://github.com/durunsong/TranslationTools"
+        >
+          记得得点个Star哦！🌹
+        </a>
+      ),
+      extra: "⌘S",
+      icon: <HeartOutlined />,
+    },
+  ];
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", themeMode === "dark");
@@ -35,7 +102,13 @@ const App: React.FC = () => {
     >
       <Layout className="min-h-screen bg-gray-100 dark:bg-gray-800">
         <Layout.Content className="p-2">
-          <div className="flex items-center justify-end">
+          <Space className="flex items-center justify-end">
+            <Dropdown menu={{ items }}>
+              <Space className="cursor-pointer">
+                <Text>🌏点击查看API文档和代码</Text>
+                <DownOutlined />
+              </Space>
+            </Dropdown>
             <Segmented
               options={[
                 { value: "light", icon: <LightIcon /> },
@@ -54,7 +127,7 @@ const App: React.FC = () => {
               }`}
               onChange={(value) => handleThemeChange(value as string)}
             />
-          </div>
+          </Space>
           <Space direction="vertical" className="w-full mt-4">
             <Resolver></Resolver>
           </Space>
