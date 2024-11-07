@@ -2,7 +2,7 @@
 <div align="center">
   <img alt="TranslationTools Logo" width="120" height="120" src="./public/logo.png">
   <h1>TranslationTools</h1>
-  <span><a href="./README.EN.md">中文</a> | English</span>
+  <span><a href="./README.EN.md">English</a> | 中文</span>
 </div>
 
 ## ⚡ 简介

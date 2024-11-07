@@ -46,7 +46,6 @@ TranslationTools is a React-based application that automates text translation us
 
 Ensure you have Node.js and npm (or pnpm/yarn) installed. Then, install the project dependencies by running the following commands:
 
-```bash
 # Setup
 1. Install the recommended plugins in the .vscode folder with one click
 2. Node version 20+
