@@ -1,5 +1,5 @@
 import React from "react";
-import { Select, Typography } from "antd";
+import { Select, Typography, Space } from "antd";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -42,7 +42,7 @@ const LanguageSelect: React.FC<LanguageSelectProps> = ({
   label,
   showAutoDetect = true, // 默认显示自动检测
 }) => (
-  <div className="mb-4">
+  <Space className="mb-4">
     <Text>{label}:</Text>
     <Select
       showSearch
@@ -62,7 +62,7 @@ const LanguageSelect: React.FC<LanguageSelectProps> = ({
           </Option>
         ))}
     </Select>
-  </div>
+  </Space>
 );
 
 export default LanguageSelect;

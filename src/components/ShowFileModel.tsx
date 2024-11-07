@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Modal, Flex, Radio, Button } from "antd";
+import { Modal, Flex, Radio, Button, Space,Typography } from "antd";
 import type { RadioChangeEvent } from "antd";
 
 interface ShowFileModelProps {
@@ -8,6 +8,8 @@ interface ShowFileModelProps {
   onSuffixSelect: (suffix: string) => void; // 父组件事件，通过确认按钮触发
   toLang?: string; // 选择的目标语言
 }
+
+const { Text } = Typography;
 
 const ShowFileModel: React.FC<ShowFileModelProps> = ({
   open,
@@ -34,7 +36,7 @@ const ShowFileModel: React.FC<ShowFileModelProps> = ({
       setLoading(false);
       onSuffixSelect(selectedSuffix); // 调用父组件的事件，传递选中的后缀名
       onCancel(); // 关闭模态框
-    }, 500); // 模拟加载时间
+    }, 500);
   };
 
   const handleSuffixChange = (e: RadioChangeEvent) => {
@@ -64,7 +66,9 @@ const ShowFileModel: React.FC<ShowFileModelProps> = ({
             </Radio.Button>
           ))}
         </Radio.Group>
-        {toLang}.{selectedSuffix}
+        <Space className="text-[18px]">
+         <Text>输出文件为：</Text><Text>{toLang}.{selectedSuffix}</Text>
+        </Space>
       </Flex>
     </Modal>
   );
