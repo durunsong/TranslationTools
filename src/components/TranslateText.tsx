@@ -40,7 +40,7 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
   const translateText = (query: string) => {
     const salt = Date.now().toString();
     const sign = MD5(appid + query + salt + apiKey).toString();
-    const url = `http://api.fanyi.baidu.com/api/trans/vip/translate?q=${encodeURIComponent(
+    const url = `https://api.fanyi.baidu.com/api/trans/vip/translate?q=${encodeURIComponent(
       query
     )}&appid=${appid}&salt=${salt}&from=${fromLang}&to=${toLang}&sign=${sign}`;
 
