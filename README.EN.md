@@ -10,9 +10,9 @@ TranslationTools is a React-based application that automates text translation us
 
 ## 📺 Online Preview
 
-| Deployment | Link                                          |
-| ---------- | --------------------------------------------- |
-| vercel     | [Link](https://translation-tools.vercel.app/) |
+| Deployment | network requirement    | Link                                                               |
+| ---------- | ---------------------- | ------------------------------------------------------------------ |
+| vercel     | Bypassing the mainland | [Click on the link to view](https://translation-tools.vercel.app/) |
 
 ## ❤️ Community Support
 
@@ -38,14 +38,15 @@ TranslationTools is a React-based application that automates text translation us
 
 - **Text Translation**: Translate text with custom character length
 - **Simple JSON Translation**: Suitable for basic JSON translation (2D JSON)
-- **Complex JSON Translation**: Suitable for nested JSON structures (multi-dimensional JSON)
+- **Complex JSON Translation**: Complex JSON patterns are suitable for JSON translation of nested structures and for multi-dimensional nested JSON
 
 ## 🚀 Development
 
-### Project Setup
+### 🍇Project Setup
 
 Ensure you have Node.js and npm (or pnpm/yarn) installed. Then, install the project dependencies by running the following commands:
 
+```bash
 # Setup
 1. Install the recommended plugins in the .vscode folder with one click
 2. Node version 20+
@@ -62,8 +63,9 @@ pnpm install
 
 # Start the development server
 pnpm run dev
+```
 
-### How to Use the Online Version
+### 🥭How to Use the Online Version
 
 1. Open [https://translation-tools.vercel.app/](https://translation-tools.vercel.app/)
 2. Go to the Baidu Translation Developer Center to obtain your Baidu translation app ID and secret key. Refer to the [Baidu Translation API Documentation](https://api.fanyi.baidu.com/doc/21) for details.
@@ -73,17 +75,31 @@ pnpm run dev
 6. Click the "Translate and Download" button to customize your translation file and download the result.
 7. Choose from three data structure options based on your needs: Simple JSON for 2D JSON, Complex JSON for multi-dimensional JSON, and Text Translation for plain text.
 
-### Baidu Translation API
+### 🍅Supported file formats for downloading
+
+- **JSON**
+- **TS**
+- **JS**
+- **TEXT**
+- **MARKDOWN**
+- **TSX**
+- **JSX**
+- **Vue**
+- **PHP**
+- **JAVA**
+- **GO**
+
+### 🌍Baidu Translation API
 
 1. [Translation API](https://fanyi-api.baidu.com/api/trans/vip/translate)
 2. [API Documentation](https://api.fanyi.baidu.com/doc/21)
 3. [API Testing](https://fanyi-api.baidu.com/api/trans/product/index)
 
-### Other Recommended APIs
+### 🌎Other Recommended APIs
 
 [DeepL Translation API](https://www.deepl.com/zh/products/api)
 
-### Notes
+### 🌏Notes
 
 - For Asian countries, use Chinese as the source language for more accurate translations.
 - For other regions, using English as the source language yields better accuracy.
