@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Modal, Flex, Radio, Button, Space,Typography } from "antd";
+import { Modal, Flex, Radio, Button, Space, Typography } from "antd";
 import type { RadioChangeEvent } from "antd";
 
 interface ShowFileModelProps {
@@ -28,6 +28,11 @@ const ShowFileModel: React.FC<ShowFileModelProps> = ({
     { value: "json", label: "json" },
     { value: "md", label: "md" },
     { value: "txt", label: "txt" },
+    { value: "php", label: "php" },
+    { value: "go", label: "go" },
+    { value: "java", label: "java" },
+    { value: "py", label: "py" },
+    { value: "yaml", label: "yaml" },
   ];
 
   const showLoading = () => {
@@ -67,7 +72,10 @@ const ShowFileModel: React.FC<ShowFileModelProps> = ({
           ))}
         </Radio.Group>
         <Space className="text-[18px]">
-         <Text>输出文件为：</Text><Text>{toLang}.{selectedSuffix}</Text>
+          <Text>输出文件为：</Text>
+          <Text>
+            {toLang}.{selectedSuffix}
+          </Text>
         </Space>
       </Flex>
     </Modal>
