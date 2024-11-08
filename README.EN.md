@@ -75,6 +75,10 @@ pnpm run dev
 6. Click the "Translate and Download" button to customize your translation file and download the result.
 7. Choose from three data structure options based on your needs: Simple JSON for 2D JSON, Complex JSON for multi-dimensional JSON, and Text Translation for plain text.
 
+### 🍄 Supported Language Translations
+- Support automatic detection of source language
+- Support Chinese, English, German, French, Japanese, Korean, Russian, Polish, Danish, Latin, Dutch, Portuguese, Thai, Italian, Greek, Arabic, Spanish, Czech, Swedish, Traditional Chinese, Irish, Finnish, Romanian, Vietnamese, Hungarian, Indonesian, Hmong, Norwegian, Turkish Language Translation
+
 ### 🍅Supported file formats for downloading
 
 - **JSON**
@@ -88,6 +92,8 @@ pnpm run dev
 - **PHP**
 - **JAVA**
 - **GO**
+- **YAML**
+- **PY**
 
 ### 🌍Baidu Translation API
 
