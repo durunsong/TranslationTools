@@ -27,12 +27,16 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
   const closeModal = () => setIsModalOpen(false);
 
   // 确认按钮触发的事件
-  const handleSuffixConfirm = (suffix: string) => {
+  const handleSuffixConfirm = (suffix: string, exportType: string) => {
     setSelectedSuffix(suffix);
-    handleTranslate(true, suffix);
+    handleTranslate(true, suffix, exportType);
   };
 
-  const handleTranslate = async (isDownload: Boolean, suffix?: string) => {
+  const handleTranslate = async (
+    isDownload: Boolean,
+    suffix?: string,
+    exportType?: string
+  ) => {
     if (!appid || !apiKey) {
       message.error("请先配置 App ID 和 Key！");
       return;
@@ -90,7 +94,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
 
       setTransResult(translation);
       if (isDownload) {
-        downloadTranslation(translation, suffix);
+        downloadTranslation(translation, suffix, exportType);
       }
     } catch (error) {
       message.error("Translation failed");
@@ -122,7 +126,8 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
   //   下载文件功能 ---- js、json、txt、ts、tsx、md、txt 格式
   const downloadTranslation = (
     data: Record<string, string>,
-    suffix?: string
+    suffix?: string,
+    exportType?: string
   ) => {
     if (!suffix) {
       message.error("请选择文件后缀名");
@@ -130,12 +135,23 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
     }
     // 文件名+后缀名
     const filename = `${toLang}.${suffix}`;
-    const content = `const ${toLang} = {\n${Object.entries(data)
-      .map(
-        ([key, value]) =>
-          `  ${JSON.stringify(key)}: ${JSON.stringify(value)},\n`
-      )
-      .join("")}};`;
+    let content = "";
+    // 根据后缀名生成文件内容
+    if (exportType == "Yes") {
+      content = `const ${toLang} = {\n${Object.entries(data)
+        .map(
+          ([key, value]) =>
+            `  ${JSON.stringify(key)}: ${JSON.stringify(value)},\n`
+        )
+        .join("")}} \n\n export default ${toLang}; `;
+    } else {
+      content = `{\n${Object.entries(data)
+        .map(
+          ([key, value]) =>
+            `  ${JSON.stringify(key)}: ${JSON.stringify(value)},\n`
+        )
+        .join("")}}`;
+    }
     const blob = new Blob([content], { type: "text/javascript" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

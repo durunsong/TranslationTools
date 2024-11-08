@@ -5,11 +5,11 @@ import type { RadioChangeEvent } from "antd";
 interface ShowFileModelProps {
   open: boolean;
   onCancel: () => void;
-  onSuffixSelect: (suffix: string) => void; // 父组件事件，通过确认按钮触发
+  onSuffixSelect: (suffix: string, exportType: string) => void; // 父组件事件，通过确认按钮触发
   toLang?: string; // 选择的目标语言
 }
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 const ShowFileModel: React.FC<ShowFileModelProps> = ({
   open,
@@ -19,6 +19,7 @@ const ShowFileModel: React.FC<ShowFileModelProps> = ({
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedSuffix, setSelectedSuffix] = useState<string>("js");
+  const [selectedExport, setSelectedExport] = useState<string>("No");
 
   const file_suffix = [
     { value: "js", label: "js" },
@@ -35,11 +36,16 @@ const ShowFileModel: React.FC<ShowFileModelProps> = ({
     { value: "yaml", label: "yaml" },
   ];
 
+  const is_export = [
+    { value: "No", label: "No" },
+    { value: "Yes", label: "Yes" },
+  ];
+
   const showLoading = () => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      onSuffixSelect(selectedSuffix); // 调用父组件的事件，传递选中的后缀名
+      onSuffixSelect(selectedSuffix,selectedExport); // 调用父组件的事件，传递选中的后缀名
       onCancel(); // 关闭模态框
     }, 500);
   };
@@ -48,9 +54,13 @@ const ShowFileModel: React.FC<ShowFileModelProps> = ({
     setSelectedSuffix(e.target.value);
   };
 
+  const handleExportChange = (e: RadioChangeEvent) => {
+    setSelectedExport(e.target.value);
+  }
+
   return (
     <Modal
-      title={<p className="mb-5">选择你想要的文件后缀名</p>}
+      title={<p className="mb-5">🧭 选择你想要的文件后缀名</p>}
       footer={
         <Button type="primary" onClick={showLoading} loading={loading}>
           确认
@@ -71,9 +81,25 @@ const ShowFileModel: React.FC<ShowFileModelProps> = ({
             </Radio.Button>
           ))}
         </Radio.Group>
+        <Space>
+          <Title level={5} className="mt-2">
+            🧭 是否用 JS/TS 语法定义及导出
+          </Title>
+          <Radio.Group
+            value={selectedExport}
+            buttonStyle="solid"
+            onChange={handleExportChange}
+          >
+            {is_export.map((item) => (
+              <Radio.Button key={item.value} value={item.value}>
+                {item.label}
+              </Radio.Button>
+            ))}
+          </Radio.Group>
+        </Space>
         <Space className="text-[18px]">
-          <Text>输出文件为：</Text>
-          <Text>
+          <Text>🌐 输出文件为：</Text>
+          <Text className="text-blue-500 text-[17px]">
             {toLang}.{selectedSuffix}
           </Text>
         </Space>
