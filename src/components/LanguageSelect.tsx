@@ -25,8 +25,17 @@ const languageOptions = [
   { value: "ara", label: "阿拉伯语" },
   { value: "spa", label: "西班牙语" },
   { value: "cs", label: "捷克语" },
-  { value: "swe", label: "越南语" },
+  { value: "swe", label: "瑞典语" },
   { value: "cht", label: "繁体中文" },
+  { value: "gle", label: "爱尔兰语" },
+  { value: "fin", label: "芬兰语" },
+  { value: "rom", label: "罗马尼亚语" },
+  { value: "vie", label: "越南语" },
+  { value: "hu", label: "匈牙利语" },
+  { value: "id", label: "印尼语" },
+  { value: "hmn", label: "苗语" },
+  { value: "nor", label: "挪威语" },
+  { value: "tr", label: "土耳其语	" },
 ];
 
 interface LanguageSelectProps {
