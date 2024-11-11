@@ -1,13 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Flex, Radio, Button, Space, Typography } from "antd";
 import type { RadioChangeEvent } from "antd";
-
-interface ShowFileModelProps {
-  open: boolean;
-  onCancel: () => void;
-  onSuffixSelect: (suffix: string, exportType: string) => void; // 父组件事件，通过确认按钮触发
-  toLang?: string; // 选择的目标语言
-}
+import { ShowFileModelProps } from "@/types/textTranslation";
 
 const { Text, Title } = Typography;
 
@@ -45,7 +39,7 @@ const ShowFileModel: React.FC<ShowFileModelProps> = ({
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      onSuffixSelect(selectedSuffix,selectedExport); // 调用父组件的事件，传递选中的后缀名
+      onSuffixSelect(selectedSuffix, selectedExport); // 调用父组件的事件，传递选中的后缀名
       onCancel(); // 关闭模态框
     }, 500);
   };
@@ -56,7 +50,7 @@ const ShowFileModel: React.FC<ShowFileModelProps> = ({
 
   const handleExportChange = (e: RadioChangeEvent) => {
     setSelectedExport(e.target.value);
-  }
+  };
 
   return (
     <Modal

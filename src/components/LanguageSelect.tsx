@@ -1,5 +1,6 @@
 import React from "react";
 import { Select, Typography, Space } from "antd";
+import { LanguageSelectProps } from "@/types/textTranslation";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -31,13 +32,6 @@ const languageOptions = [
   { value: "vie", label: "越南语" },
   { value: "hu", label: "匈牙利语" },
 ];
-
-interface LanguageSelectProps {
-  value: string;
-  onChange: (value: string) => void;
-  label: string;
-  showAutoDetect?: boolean; // 是否显示自动检测选项
-}
 
 const LanguageSelect: React.FC<LanguageSelectProps> = ({
   value,
