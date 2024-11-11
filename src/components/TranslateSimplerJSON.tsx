@@ -42,7 +42,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
       return;
     }
     if (!textData.trim()) {
-      message.error("请输入需要翻译的文本");
+      message.error("请输入需要翻译的JSON数据！");
       return;
     }
     let data;
