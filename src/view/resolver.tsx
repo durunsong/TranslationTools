@@ -12,6 +12,7 @@ import TranslateText from "@/components/TranslateText";
 import TranslateSimplerJSON from "@/components/TranslateSimplerJSON";
 import TransEintricateJSON from "@/components/TransEintricateJSON";
 import { useCredentialsStore } from "@/stores/useCredentialsStore";
+import useResponsivePlacement from "@/hooks/useResponsivePlacement";
 import "./css/resolver.css";
 // 演示JSON数据
 import simpleData from "./json/simple.json";
@@ -25,6 +26,9 @@ const ResolveComponent: React.FC = () => {
   const [localAppid, setLocalAppid] = useState<string>(appid || "");
   const [localKey, setLocalKey] = useState<string>(apiKey || "");
   const { message } = App.useApp();
+
+  // 调用自定义 Hook 获取 Popover 的 placement
+  const placement = useResponsivePlacement();
 
   // 复杂JSON数据处理
   const complexDataJson: any = (data: any) => {
@@ -162,6 +166,7 @@ const ResolveComponent: React.FC = () => {
               label: (
                 <Popover
                   trigger="hover"
+                  placement={placement}
                   content={popoverContent.complexJSONMode}
                 >
                   <span>复杂JSON模式</span>
