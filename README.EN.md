@@ -76,6 +76,7 @@ pnpm run dev
 7. Choose from three data structure options based on your needs: Simple JSON for 2D JSON, Complex JSON for multi-dimensional JSON, and Text Translation for plain text.
 
 ### 🍄 Supported Language Translations
+
 - Support automatic detection of source language
 - Support Chinese, English, German, French, Japanese, Korean, Russian, Polish, Danish, Latin, Dutch, Portuguese, Thai, Italian, Greek, Arabic, Spanish, Czech, Swedish, Traditional Chinese, Irish, Finnish, Romanian, Vietnamese, Hungarian, Indonesian, Hmong, Norwegian, Turkish Language Translation
 
@@ -110,6 +111,23 @@ pnpm run dev
 - For Asian countries, use Chinese as the source language for more accurate translations.
 - For other regions, using English as the source language yields better accuracy.
 
+- If the data format is not in standard JSON format, please convert it to JSON format, otherwise it will report an error, the simplest way to convert is as follows:
+
+```js
+
+// Non-standard JSON data
+const data = {
+  name: 'zhangsan',
+  age: 18,
+  gender: 'male',
+};
+
+// Convert to standard JSON data --- view the output in the browser console, copy the object directly
+console.log(data);
+
+``
+
 ## 💕 Thanks for the Star
 
 It's not easy for small projects to get stars, so if you like this project, please support it with a star! It's the author’s primary motivation to keep maintaining it (whisper: after all, it’s free).
+```
