@@ -73,7 +73,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
 
     const zhKeysArr = Object.keys(data);
     const valueArr = Object.values(data);
-    const chunkSize = 8; // 每次翻译8个key-value对
+    const chunkSize = 10; // 每次翻译10个key-value对
     const chunks = [];
 
     for (let i = 0; i < valueArr.length; i += chunkSize) {
@@ -194,7 +194,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
         autoSize={{ minRows: 6, maxRows: 10 }}
         className="mt-4"
         showCount
-        maxLength={2000}
+        maxLength={10000}
       />
       <Space>
         <Button

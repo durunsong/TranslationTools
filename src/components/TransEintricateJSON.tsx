@@ -223,7 +223,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
         autoSize={{ minRows: 6, maxRows: 10 }}
         className="mt-4"
         showCount
-        maxLength={2000}
+        maxLength={10000}
       />
       <Space>
         <Button
