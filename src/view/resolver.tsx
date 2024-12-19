@@ -110,6 +110,12 @@ const ResolveComponent: React.FC = () => {
     ),
   };
 
+  const handleModeChange = (value:string) => {
+    requestAnimationFrame(() => {
+      setMode(value);
+    });
+  };
+
   return (
     <div className="flex flex-col">
       <Space className="input-appid-key">
@@ -140,8 +146,8 @@ const ResolveComponent: React.FC = () => {
         </Title>
         <Segmented
           size="large"
-          value={mode}
-          onChange={(value) => setMode(value as string)}
+          defaultValue={mode}
+          onChange={handleModeChange}
           options={[
             {
               label: (
