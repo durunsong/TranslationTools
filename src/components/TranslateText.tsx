@@ -20,11 +20,21 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
 
   const handleTranslate = async () => {
     if (!appid || !apiKey) {
-      message.error("请先配置 App ID 和 Key！");
+      message.error({
+        content: "请先配置 App ID 和 Key！",
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
       return;
     }
     if (!textData.trim()) {
-      message.error("请输入需要翻译的文本");
+      message.error({
+        content: "请输入需要翻译的文本",
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
       return;
     }
 
@@ -32,7 +42,12 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
       const translatedText = await translateText(textData);
       setTransResult(translatedText);
     } catch (error) {
-      message.error("翻译失败");
+      message.error({
+        content: "翻译失败",
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
       console.error(error);
     }
   };

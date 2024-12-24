@@ -8,3 +8,12 @@
   display: flex;
   align-items: center;
 }
+
+/* message 字体颜色 */
+.message-light span{
+  color: #000;
+}
+
+.message-dark span{
+  color: #fff; 
+}

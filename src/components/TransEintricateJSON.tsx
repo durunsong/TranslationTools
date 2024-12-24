@@ -30,11 +30,21 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
     exportType?: string
   ) => {
     if (!appid || !apiKey) {
-      message.error("请先配置 App ID 和 Key！");
+      message.error({
+        content: "请先配置 App ID 和 Key！",
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
       return;
     }
     if (!textData.trim()) {
-      message.error("请输入需要翻译的JSON数据！");
+      message.error({
+        content: "请输入需要翻译的JSON数据！",
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
       return;
     }
 
@@ -65,7 +75,12 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
     try {
       data = JSON.parse(formattedText);
     } catch (error) {
-      message.error("输入的文本格式不正确，请确保是有效的 JSON 对象格式");
+      message.error({
+        content: "输入的文本格式不正确，请确保是有效的 JSON 对象格式",
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
       return;
     }
 
@@ -87,7 +102,12 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
     exportType?: string
   ) => {
     if (!suffix) {
-      message.error("请选择文件后缀名");
+      message.error({
+        content: "请选择文件后缀名",
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
       return;
     }
     // 文件名+后缀名
@@ -163,7 +183,12 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
       const results = await Promise.all(promises);
       return results.map((result) => result.trans_result?.[0]?.dst || "");
     } catch (error) {
-      message.error("Translation failed");
+      message.error({
+        content: "翻译失败, 请检查网络连接或API密钥是否正确",
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
       console.error(error);
       return [];
     }

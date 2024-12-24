@@ -52,9 +52,19 @@ const ResolveComponent: React.FC = () => {
     if (localAppid && localKey) {
       // 使用 Zustand 更新状态
       setCredentials(localAppid, localKey);
-      message.success("App ID 和 Key 已保存！");
+      message.success({
+        content: "App ID 和 Key 已保存！",
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
     } else {
-      message.error("请输入 App ID 和 Key！");
+      message.error({
+        content: "请输入 App ID 和 Key！",
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
     }
   };
 
