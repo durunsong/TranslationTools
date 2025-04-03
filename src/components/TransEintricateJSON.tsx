@@ -114,7 +114,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
 
   //   下载文件功能 ---- js、json、txt、ts、tsx、md、txt 格式
   const downloadTranslation = (
-    data: Record<string, string>,
+    data: Record<string, unknown>,
     suffix?: string,
     exportType?: string
   ) => {
@@ -129,7 +129,6 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
     }
     // 文件名+后缀名
     const filename = `${toLang}.${suffix}`;
-    // const content = `const ${toLang} = {\n${Object.entries(data) // 业务开发中在文件中添加一些额外的东西
     let content = "";
     if (exportType == "Yes") {
       content = `const ${toLang} = {\n${Object.entries(data)
@@ -179,7 +178,16 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
     translatedTexts: string[],
     index = { value: 0 }
   ): Record<string, unknown> => {
-    const newObj: Record<string, unknown> = Array.isArray(obj) ? [] : {};
+    let newObj: Record<string, unknown>;
+    if (Array.isArray(obj)) {
+      newObj = {} as Record<string, unknown>;
+      obj.forEach((value, i) => {
+        newObj[i.toString()] = value;
+      });
+    } else {
+      newObj = {};
+    }
+    
     Object.keys(obj).forEach((key) => {
       const value = obj[key];
       if (typeof value === "string") {
@@ -190,6 +198,10 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
         newObj[key] = value;
       }
     });
+
+    if (Array.isArray(obj)) {
+      return Object.values(newObj) as unknown as Record<string, unknown>;
+    }
 
     return newObj;
   };
