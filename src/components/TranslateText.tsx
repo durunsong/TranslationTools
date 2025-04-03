@@ -4,6 +4,7 @@ import jsonp from "jsonp";
 import MD5 from "md5";
 import LanguageSelect from "./LanguageSelect";
 import { TextTranslationProps } from "@/types/textTranslation";
+import { useTranslationLoading } from "@/hooks/useTranslationLoading";
 
 const { TextArea } = Input;
 const { Paragraph, Title } = Typography;
@@ -16,6 +17,7 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
   const [toLang, setToLang] = useState<string>("zh");
   const [textData, setTextData] = useState<string>("");
   const [transResult, setTransResult] = useState<string | null>(null);
+  const { isLoading, startLoading, stopLoading } = useTranslationLoading();
   const { message } = App.useApp();
 
   const handleTranslate = async () => {
@@ -39,6 +41,7 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
     }
 
     try {
+      startLoading();
       const translatedText = await translateText(textData);
       setTransResult(translatedText);
     } catch (error) {
@@ -49,6 +52,8 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
           : "message-light",
       });
       console.error(error);
+    } finally {
+      stopLoading();
     }
   };
 
@@ -65,7 +70,7 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
           reject(err);
         } else {
           const result = data.trans_result
-            ?.map((res: any) => res.dst)
+            ?.map((res: { dst: string }) => res.dst)
             .join("\n");
           resolve(result);
         }
@@ -102,9 +107,19 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
         showCount
         maxLength={2000}
       />
-      <Button type="primary" onClick={handleTranslate} className="mt-4 w-fit">
-        翻译
+      <Button 
+        type="primary" 
+        onClick={handleTranslate} 
+        className="mt-4 w-fit"
+        loading={isLoading}
+      >
+        {isLoading ? "翻译中..." : "翻译"}
       </Button>
+      {isLoading && !transResult && (
+        <div className="mt-4 text-center">
+          <div className="text-lg">正在为你翻译请稍等...</div>
+        </div>
+      )}
       {transResult && (
         <>
           <Title level={5} className="mt-4">

@@ -5,6 +5,7 @@ import MD5 from "md5";
 import LanguageSelect from "./LanguageSelect";
 import ShowFileModel from "./ShowFileModel";
 import { TextTranslationProps } from "@/types/textTranslation";
+import { useTranslationLoading } from "@/hooks/useTranslationLoading";
 
 const { TextArea } = Input;
 const { Paragraph, Title } = Typography;
@@ -16,16 +17,17 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
   const [fromLang, setFromLang] = useState<string>("auto");
   const [toLang, setToLang] = useState<string>("zh");
   const [textData, setTextData] = useState<string>("");
-  const [transResult, setTransResult] = useState<any>(null);
+  const [transResult, setTransResult] = useState<Record<string, unknown> | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSuffix, setSelectedSuffix] = useState<string>("");
 
+  const { isLoading, startLoading, stopLoading } = useTranslationLoading();
   const { message } = App.useApp();
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
   const handleTranslate = async (
-    isDownload: Boolean,
+    isDownload: boolean,
     suffix?: string,
     exportType?: string
   ) => {
@@ -84,14 +86,29 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
       return;
     }
 
-    // 后续翻译
-    const textToTranslate = collectText(data);
-    const translatedTextArray = await translateTexts(textToTranslate);
-    const translatedData = applyTranslations(data, translatedTextArray);
-    setTransResult(translatedData);
-    if (isDownload) {
-      downloadTranslation(translatedData, suffix, exportType);
-      isDownload = false;
+    // 开始显示加载状态
+    startLoading();
+    
+    try {
+      // 后续翻译
+      const textToTranslate = collectText(data);
+      const translatedTextArray = await translateTexts(textToTranslate);
+      const translatedData = applyTranslations(data, translatedTextArray);
+      setTransResult(translatedData);
+      if (isDownload) {
+        downloadTranslation(translatedData, suffix, exportType);
+      }
+    } catch (error) {
+      message.error({
+        content: "翻译失败, 请检查网络连接或API密钥是否正确",
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
+      console.error(error);
+    } finally {
+      // 结束加载状态
+      stopLoading();
     }
   };
 
@@ -139,12 +156,12 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
   };
 
   // 收集 JSON 中的所有文本字段
-  const collectText = (obj: any, texts: string[] = []): string[] => {
+  const collectText = (obj: Record<string, unknown>, texts: string[] = []): string[] => {
     Object.values(obj).forEach((value) => {
       if (typeof value === "string") {
         texts.push(value);
       } else if (typeof value === "object" && value !== null) {
-        collectText(value, texts);
+        collectText(value as Record<string, unknown>, texts);
       }
     });
     return texts;
@@ -158,17 +175,17 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
 
   // 将翻译后的文本填回嵌套 JSON
   const applyTranslations = (
-    obj: any,
+    obj: Record<string, unknown>,
     translatedTexts: string[],
     index = { value: 0 }
-  ): any => {
-    const newObj: Record<string, any> = Array.isArray(obj) ? [] : {};
+  ): Record<string, unknown> => {
+    const newObj: Record<string, unknown> = Array.isArray(obj) ? [] : {};
     Object.keys(obj).forEach((key) => {
       const value = obj[key];
       if (typeof value === "string") {
         newObj[key] = translatedTexts[index.value++];
       } else if (typeof value === "object" && value !== null) {
-        newObj[key] = applyTranslations(value, translatedTexts, index);
+        newObj[key] = applyTranslations(value as Record<string, unknown>, translatedTexts, index);
       } else {
         newObj[key] = value;
       }
@@ -255,13 +272,27 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
           type="primary"
           onClick={() => handleTranslate(false)}
           className="mt-4"
+          loading={isLoading}
         >
-          直接翻译
+          {isLoading ? "翻译中..." : "直接翻译"}
         </Button>
-        <Button type="primary" onClick={openModal} className="mt-4 ml-4">
-          翻译并且下载 {toLang}.{selectedSuffix || "js"}
+        <Button 
+          type="primary" 
+          onClick={openModal} 
+          className="mt-4 ml-4"
+          loading={isLoading}
+        >
+          {isLoading ? "翻译中..." : `翻译并且下载 ${toLang}.${selectedSuffix || "js"}`}
         </Button>
       </Space>
+      
+      {/* 如果正在加载中且没有结果，显示加载提示 */}
+      {isLoading && !transResult && (
+        <div className="mt-4 text-center">
+          <div className="text-lg">正在为你翻译请稍等...</div>
+        </div>
+      )}
+      
       {transResult && (
         <>
           <Title level={5} className="mt-4">

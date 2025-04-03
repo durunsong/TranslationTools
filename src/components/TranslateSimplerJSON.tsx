@@ -5,6 +5,7 @@ import MD5 from "md5";
 import LanguageSelect from "./LanguageSelect";
 import ShowFileModel from "./ShowFileModel";
 import { TextTranslationProps } from "@/types/textTranslation";
+import { useTranslationLoading } from "@/hooks/useTranslationLoading";
 
 const { TextArea } = Input;
 const { Paragraph, Title } = Typography;
@@ -19,6 +20,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
   const [transResult, setTransResult] = useState<{
     [key: string]: string;
   } | null>(null);
+  const { isLoading, startLoading, stopLoading } = useTranslationLoading();
   const { message } = App.useApp();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSuffix, setSelectedSuffix] = useState<string>("");
@@ -33,7 +35,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
   };
 
   const handleTranslate = async (
-    isDownload: Boolean,
+    isDownload: boolean,
     suffix?: string,
     exportType?: string
   ) => {
@@ -95,11 +97,14 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
       chunks.push(valueArr.slice(i, i + chunkSize).join("\n"));
     }
 
+    // 开始显示加载状态
+    startLoading();
+    
     try {
       const transPromises = chunks.map((chunk) => translateChunk(chunk));
       const results = await Promise.all(transPromises);
       const translatedValues = results.flatMap(
-        (result) => result.trans_result?.map((res: any) => res.dst) || []
+        (result) => result.trans_result?.map((res: { dst: string }) => res.dst) || []
       );
 
       const translation = zhKeysArr.reduce((acc, key, index) => {
@@ -111,14 +116,17 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
       if (isDownload) {
         downloadTranslation(translation, suffix, exportType);
       }
-    } catch (error) {
+    } catch (e) {
       message.error({
         content: "翻译失败，请检查网络连接或稍后再试",
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
       });
-      console.error(error);
+      console.error(e);
+    } finally {
+      // 无论成功还是失败，都结束加载状态
+      stopLoading();
     }
   };
 
@@ -226,13 +234,27 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
           type="primary"
           onClick={() => handleTranslate(false)}
           className="mt-4"
+          loading={isLoading}
         >
-          直接翻译
+          {isLoading ? "翻译中..." : "直接翻译"}
         </Button>
-        <Button type="primary" onClick={openModal} className="mt-4 ml-4">
-          翻译并且下载 {toLang}.{selectedSuffix || "js"}
+        <Button 
+          type="primary" 
+          onClick={openModal} 
+          className="mt-4 ml-4"
+          loading={isLoading}
+        >
+          {isLoading ? "翻译中..." : `翻译并且下载 ${toLang}.${selectedSuffix || "js"}`}
         </Button>
       </Space>
+      
+      {/* 如果正在加载中且没有结果，显示加载提示 */}
+      {isLoading && !transResult && (
+        <div className="mt-4 text-center">
+          <div className="text-lg">正在为你翻译请稍等...</div>
+        </div>
+      )}
+      
       {transResult && (
         <>
           <Title level={5} className="mt-4">
