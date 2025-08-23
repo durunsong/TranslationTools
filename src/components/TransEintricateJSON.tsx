@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { App, Button, Typography, Input, Space } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
+import { EyeOutlined, CopyOutlined } from "@ant-design/icons";
 import axios from "axios";
 import LanguageSelect from "./LanguageSelect";
 import ShowFileModel from "./ShowFileModel";
@@ -29,6 +29,52 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
   const { message } = App.useApp();
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+
+  // 复制翻译结果到剪贴板
+  const handleCopyResult = async () => {
+    if (!transResult) {
+      message.warning({
+        content: "没有翻译结果可复制",
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(transResult, null, 2));
+      message.success({
+        content: "翻译结果已复制到剪贴板",
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
+    } catch {
+      // 如果现代API失败，使用传统方法
+      const textArea = document.createElement('textarea');
+      textArea.value = JSON.stringify(transResult, null, 2);
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        message.success({
+          content: "翻译结果已复制到剪贴板",
+          className: document.documentElement.classList.contains("dark")
+            ? "message-dark"
+            : "message-light",
+        });
+      } catch {
+        message.error({
+          content: "复制失败，请手动复制",
+          className: document.documentElement.classList.contains("dark")
+            ? "message-dark"
+            : "message-light",
+        });
+      }
+      document.body.removeChild(textArea);
+    }
+  };
 
   const handleTranslate = async (
     isDownload: boolean,
@@ -372,9 +418,20 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
       
       {transResult && (
         <>
-          <Title level={5} className="mt-4">
-            🧭翻译结果⬇
-          </Title>
+          <div className="flex items-center justify-between mt-4">
+            <Title level={5} className="mb-0">
+              🧭翻译结果⬇
+            </Title>
+            <Button
+              type="text"
+              icon={<CopyOutlined />}
+              onClick={handleCopyResult}
+              className="flex items-center"
+              size="small"
+            >
+              复制翻译结果
+            </Button>
+          </div>
           <Paragraph
             copyable
             className="p-4 rounded mt-4 whitespace-pre-wrap font-mono"
