@@ -46,7 +46,7 @@ export default defineConfig({
           // 将Ant Design打包到一个chunk
           'antd-vendor': ['antd', '@ant-design/icons'],
           // 将工具库打包到一个chunk
-          'utils-vendor': ['zustand', 'axios', 'md5', 'jsonp', 'classnames']
+          'utils-vendor': ['zustand', 'axios', 'md5', 'classnames']
         },
         // 为chunk文件命名
         chunkFileNames: 'static/js/[name]-[hash].js',
@@ -86,7 +86,6 @@ export default defineConfig({
       'zustand',
       'axios',
       'md5',
-      'jsonp',
       'classnames'
     ],
   },
