@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { App, Button, Typography, Input, Space } from "antd";
-import jsonp from "jsonp";
-import MD5 from "md5";
 import LanguageSelect from "./LanguageSelect";
 import { TextTranslationProps } from "@/types/textTranslation";
 import { useTranslationLoading } from "@/hooks/useTranslationLoading";
+import TranslationService from "@/services/translationService";
 
 const { TextArea } = Input;
 const { Paragraph, Title } = Typography;
@@ -20,19 +19,19 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
   const { isLoading, startLoading, stopLoading } = useTranslationLoading();
   const { message } = App.useApp();
 
-  const handleTranslate = async () => {
-    if (!appid || !apiKey) {
+  const handleTranslate = useCallback(async () => {
+    // 参数验证
+    const validation = TranslationService.validateParams({
+      appid: appid || undefined,
+      apiKey: apiKey || undefined,
+      query: textData,
+      from: fromLang,
+      to: toLang,
+    });
+
+    if (!validation.isValid) {
       message.error({
-        content: "请先配置 App ID 和 Key！",
-        className: document.documentElement.classList.contains("dark")
-          ? "message-dark"
-          : "message-light",
-      });
-      return;
-    }
-    if (!textData.trim()) {
-      message.error({
-        content: "请输入需要翻译的文本",
+        content: validation.message,
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
@@ -42,41 +41,27 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
 
     try {
       startLoading();
-      const translatedText = await translateText(textData);
+      const translatedText = await TranslationService.translate({
+        query: textData,
+        from: fromLang,
+        to: toLang,
+        appid: appid!,
+        apiKey: apiKey!,
+      });
       setTransResult(translatedText);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "翻译失败";
       message.error({
-        content: "翻译失败",
+        content: errorMessage,
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
       });
-      console.error(error);
+      console.error("Translation error:", error);
     } finally {
       stopLoading();
     }
-  };
-
-  const translateText = (query: string) => {
-    const salt = Date.now().toString();
-    const sign = MD5(appid + query + salt + apiKey).toString();
-    const url = `https://api.fanyi.baidu.com/api/trans/vip/translate?q=${encodeURIComponent(
-      query
-    )}&appid=${appid}&salt=${salt}&from=${fromLang}&to=${toLang}&sign=${sign}`;
-
-    return new Promise<string>((resolve, reject) => {
-      jsonp(url, { param: "callback" }, (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          const result = data.trans_result
-            ?.map((res: { dst: string }) => res.dst)
-            .join("\n");
-          resolve(result);
-        }
-      });
-    });
-  };
+  }, [appid, apiKey, textData, fromLang, toLang, startLoading, stopLoading, message]);
 
   return (
     <>
