@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Typography, Button } from "antd";
+import { Modal, Typography, Button, App } from "antd";
 import { CopyOutlined } from "@ant-design/icons";
 
 const { Paragraph, Title } = Typography;
@@ -21,6 +21,44 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
   example,
   mode,
 }) => {
+  const { message } = App.useApp();
+
+  // 复制案例格式到剪贴板
+  const handleCopyExample = async () => {
+    try {
+      await navigator.clipboard.writeText(example);
+      message.success({
+        content: "案例格式已复制到剪贴板",
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
+    } catch (error) {
+      // 如果现代API失败，使用传统方法
+      const textArea = document.createElement('textarea');
+      textArea.value = example;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        message.success({
+          content: "案例格式已复制到剪贴板",
+          className: document.documentElement.classList.contains("dark")
+            ? "message-dark"
+            : "message-light",
+        });
+      } catch {
+        message.error({
+          content: "复制失败，请手动复制",
+          className: document.documentElement.classList.contains("dark")
+            ? "message-dark"
+            : "message-light",
+        });
+      }
+      document.body.removeChild(textArea);
+    }
+  };
+
   // 根据模式设置不同的图标和颜色
   const getModeConfig = () => {
     switch (mode) {
@@ -67,11 +105,22 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
         </div>
 
         {/* 示例标题 */}
-        <div className="flex items-center gap-2">
-          <span className="text-gray-600 dark:text-gray-400">🖨</span>
-          <Title level={5} className="m-0">
-            示例格式：
-          </Title>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-gray-600 dark:text-gray-400">🖨</span>
+            <Title level={5} className="m-0">
+              示例格式：
+            </Title>
+          </div>
+          <Button
+            type="text"
+            icon={<CopyOutlined />}
+            onClick={handleCopyExample}
+            className="flex items-center text-blue-500 hover:text-blue-600"
+            size="small"
+          >
+            复制案例格式
+          </Button>
         </div>
 
         {/* 示例代码 */}
