@@ -6,14 +6,60 @@
   margin-top: 10px;
 }
 
+/* 输入框和按钮布局 */
+.input-appid-key .ant-space {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  width: 100%;
+  flex-direction: row !important;
+}
+
+.input-appid-key .ant-space .ant-space {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  flex: 1;
+  flex-direction: row !important;
+}
+
+.input-appid-key .ant-input {
+  flex: 1;
+  min-width: 120px;
+}
+
+.input-appid-key .ant-btn {
+  flex-shrink: 0;
+  width: auto !important;
+  min-width: auto !important;
+  padding: 4px 12px !important;
+}
+
+/* 模式选择器样式 */
 .responsive-space .ant-segmented {
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
   border: 1px solid rgba(148, 163, 184, 0.2) !important;
   border-radius: 16px !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
-  padding: 6px !important;
+  padding: 2px !important;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
   backdrop-filter: blur(10px) !important;
+  width: auto !important;
+  max-width: 100% !important;
+}
+
+.responsive-space .ant-segmented .ant-segmented-item {
+  min-width: auto !important;
+  padding: 6px 10px !important;
+  flex: 0 0 auto !important;
+}
+
+.responsive-space .ant-segmented .ant-segmented-item-label {
+  white-space: nowrap !important;
+  font-size: 13px !important;
+  padding: 0 2px !important;
 }
 
 .responsive-space .ant-segmented:hover {
@@ -123,6 +169,30 @@ html.dark .responsive-space .ant-segmented-item-selected::before {
     overflow: hidden;
   }
   
+  .input-appid-key .ant-space {
+    width: 100%;
+  }
+  
+  .input-appid-key .ant-space .ant-space {
+    width: 100%;
+    flex-direction: row !important;
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+  
+  .input-appid-key .ant-input {
+    flex: 1;
+    min-width: 80px;
+  }
+  
+  .input-appid-key .ant-btn {
+    flex-shrink: 0;
+    width: auto !important;
+    min-width: auto !important;
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+  }
+  
   .input-appid-key-title,
   .responsive-space-title {
     height: fit-content;
@@ -132,7 +202,7 @@ html.dark .responsive-space .ant-segmented-item-selected::before {
   
   .responsive-space .ant-segmented:hover {
     transform: none !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 2x 16px rgba(0, 0, 0, 0.08) !important;
   }
   
   .responsive-space .ant-segmented-item:not(.ant-segmented-item-selected):hover {
@@ -185,16 +255,46 @@ html.dark .responsive-space .ant-segmented-item-selected::before {
     width: 100%;
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .responsive-space .ant-segmented .ant-segmented-item {
+    min-width: auto !important;
+    padding: 5px 12px !important;
+    flex: 1 1 auto !important;
+    text-align: center !important;
+  }
+  
+  .responsive-space .ant-segmented .ant-segmented-item-label {
+    font-size: 12px !important;
+    padding: 0 1px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
 }
 
 @media (max-width: 480px) {
   .input-appid-key .ant-input {
-    min-width: 100px;
+    min-width: 70px;
+    flex: 1;
+    font-size: 13px !important;
   }
   
   .input-appid-key .ant-btn {
-    width: 100%;
-    margin-top: 4px;
+    width: auto !important;
+    min-width: auto !important;
+    padding: 4px 6px !important;
+    font-size: 12px !important;
+    flex-shrink: 0;
+  }
+  
+  .responsive-space .ant-segmented .ant-segmented-item-label {
+    font-size: 12px !important;
+    padding: 0 1px !important;
+  }
+  
+  .responsive-space .ant-segmented .ant-segmented-item {
+    padding: 4px 20px !important;
   }
 }

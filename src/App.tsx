@@ -85,14 +85,11 @@ const App: React.FC = () => {
             <Space direction="vertical" className="w-full mt-4">
               <Suspense 
                 fallback={
-                  <div className="flex justify-center items-center min-h-[400px]">
-                    <Spin size="large" spinning={true}>
-                      <div className="text-center p-8">
-                        <div className="text-lg text-gray-600 dark:text-gray-300">
-                          {t('common.loading')}
-                        </div>
-                      </div>
-                    </Spin>
+                  <div className="flex flex-col justify-center items-center min-h-[400px] gap-4">
+                    <Spin size="large" spinning={true} />
+                    <div className="text-lg text-gray-600 dark:text-gray-300">
+                      {t('common.loading')}
+                    </div>
                   </div>
                 }
               >

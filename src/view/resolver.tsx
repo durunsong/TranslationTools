@@ -80,7 +80,7 @@ const ResolveComponent: React.FC = () => {
         <Title level={5} className="input-appid-key-title">
           {t('header.inputCredentials')}
         </Title>
-        <Space>
+        <Space className="flex flex-col">
           <Input
             placeholder={t('header.appIdPlaceholder')}
             allowClear
@@ -93,10 +93,10 @@ const ResolveComponent: React.FC = () => {
             value={localKey}
             onChange={(e) => setLocalKey(e.target.value)}
           />
+        </Space>
           <Button type="primary" onClick={handleSaveCredentials}>
             {t('common.save')}
           </Button>
-        </Space>
       </Space>
       <Space className="responsive-space">
         <Title level={5} className="responsive-space-title">
