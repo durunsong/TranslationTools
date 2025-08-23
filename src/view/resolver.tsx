@@ -3,7 +3,6 @@ import {
   Typography,
   Segmented,
   Space,
-  Popover,
   Input,
   Button,
   App,
@@ -11,14 +10,11 @@ import {
 import TranslateText from "@/components/TranslateText";
 import TranslateSimplerJSON from "@/components/TranslateSimplerJSON";
 import TransEintricateJSON from "@/components/TransEintricateJSON";
+import TranslatePHP from "@/components/TranslatePHP";
 import { useCredentialsStore } from "@/stores/useCredentialsStore";
-import useResponsivePlacement from "@/hooks/useResponsivePlacement";
 import "./css/resolver.css";
-// 演示JSON数据
-import simpleData from "./json/simple.json";
-import complexData from "./json/complex.json";
 
-const { Paragraph, Title } = Typography;
+const { Title } = Typography;
 
 const ResolveComponent: React.FC = () => {
   const [mode, setMode] = useState("textMode");
@@ -26,21 +22,6 @@ const ResolveComponent: React.FC = () => {
   const [localAppid, setLocalAppid] = useState<string>(appid || "");
   const [localKey, setLocalKey] = useState<string>(apiKey || "");
   const { message } = App.useApp();
-
-  // 调用自定义 Hook 获取 Popover 的 placement
-  const placement = useResponsivePlacement();
-
-  // 复杂JSON数据处理
-  const complexDataJson: any = (data: any) => {
-    return `{\n${Object.entries(data)
-      .map(
-        ([key, value]) =>
-          ` "${key}": ${
-            typeof value === "object" ? complexDataJson(value) : `"${value}"`
-          },`
-      )
-      .join("\n")}\n}`;
-  };
 
   useEffect(() => {
     // 获取 appid 和 apiKey 更新状态
@@ -76,49 +57,14 @@ const ResolveComponent: React.FC = () => {
         return <TranslateSimplerJSON appid={appid} apiKey={apiKey} />;
       case "complexJSONMode":
         return <TransEintricateJSON appid={appid} apiKey={apiKey} />;
+      case "phpMode":
+        return <TranslatePHP appid={appid} apiKey={apiKey} />;
       default:
         return null;
     }
   };
 
-  const popoverContent = {
-    textMode: (
-      <div>
-        <p>🌐用于文本翻译</p>
-        🖨eg：这是一个翻译程序，可以翻译各种语言。
-      </div>
-    ),
-    simpleJSONMode: (
-      <div>
-        <p>🌐简单JSON模式适合基础的JSON翻译</p>
-        🖨eg：
-        {simpleData && (
-          <Paragraph
-            copyable
-            className="rounded mt-4 whitespace-pre-wrap font-mono"
-          >
-            {`{\n${Object.entries(simpleData)
-              .map(([key, value]) => `  "${key}": "${value}",`)
-              .join("\n")}\n}`}
-          </Paragraph>
-        )}
-      </div>
-    ),
-    complexJSONMode: (
-      <div>
-        <p>🌐复杂JSON模式适合嵌套结构的JSON翻译</p>
-        🖨eg：
-        {complexData && (
-          <Paragraph
-            copyable
-            className="rounded mt-4 whitespace-pre-wrap font-mono"
-          >
-            {complexDataJson(complexData)}
-          </Paragraph>
-        )}
-      </div>
-    ),
-  };
+
 
   const handleModeChange = (value:string) => {
     requestAnimationFrame(() => {
@@ -160,35 +106,20 @@ const ResolveComponent: React.FC = () => {
           onChange={handleModeChange}
           options={[
             {
-              label: (
-                <Popover trigger="hover" content={popoverContent.textMode}>
-                  <span>文本模式</span>
-                </Popover>
-              ),
+              label: "文本模式",
               value: "textMode",
             },
             {
-              label: (
-                <Popover
-                  trigger="hover"
-                  content={popoverContent.simpleJSONMode}
-                >
-                  <span>简单JSON模式</span>
-                </Popover>
-              ),
+              label: "简单JSON模式",
               value: "simpleJSONMode",
             },
             {
-              label: (
-                <Popover
-                  trigger="hover"
-                  placement={placement}
-                  content={popoverContent.complexJSONMode}
-                >
-                  <span>复杂JSON模式</span>
-                </Popover>
-              ),
+              label: "复杂JSON模式",
               value: "complexJSONMode",
+            },
+            {
+              label: "PHP数组模式",
+              value: "phpMode",
             },
           ]}
         />

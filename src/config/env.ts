@@ -18,6 +18,7 @@ interface AppConfig {
   // API配置
   api: {
     baiduTranslateUrl: string;
+    proxyApiUrl: string;
     timeout: number;
     maxRetries: number;
   };
@@ -49,6 +50,7 @@ export const config: AppConfig = {
   
   api: {
     baiduTranslateUrl: 'https://api.fanyi.baidu.com/api/trans/vip/translate',
+    proxyApiUrl: import.meta.env.VITE_PROXY_API_URL || 'http://localhost:4500/api/translation/translate',
     timeout: 10000, // 10秒
     maxRetries: 3,
   },

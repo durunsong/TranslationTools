@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { App, Button, Typography, Input, Space } from "antd";
-import jsonp from "jsonp";
-import MD5 from "md5";
+import { EyeOutlined } from "@ant-design/icons";
+import axios from "axios";
 import LanguageSelect from "./LanguageSelect";
 import ShowFileModel from "./ShowFileModel";
+import ExampleFormatModal from "./ExampleFormatModal";
 import { TextTranslationProps } from "@/types/textTranslation";
 import { useTranslationLoading } from "@/hooks/useTranslationLoading";
+import { config } from "@/config/env";
+import { EXAMPLE_FORMATS } from "@/constants/exampleFormats";
 
 const { TextArea } = Input;
 const { Paragraph, Title } = Typography;
@@ -19,6 +22,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
   const [textData, setTextData] = useState<string>("");
   const [transResult, setTransResult] = useState<Record<string, unknown> | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isExampleModalOpen, setIsExampleModalOpen] = useState(false);
   const [selectedSuffix, setSelectedSuffix] = useState<string>("");
 
   const { isLoading, startLoading, stopLoading } = useTranslationLoading();
@@ -76,7 +80,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
     // 解析为对象
     try {
       data = JSON.parse(formattedText);
-    } catch (error) {
+    } catch {
       message.error({
         content: "输入的文本格式不正确，请确保是有效的 JSON 对象格式",
         className: document.documentElement.classList.contains("dark")
@@ -208,9 +212,31 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
 
   const translateTexts = async (texts: string[]) => {
     try {
-      const promises = texts.map((text) => translateChunk(text));
-      const results = await Promise.all(promises);
-      return results.map((result) => result.trans_result?.[0]?.dst || "");
+      // 使用分块处理，避免过多的API请求
+      const chunkSize = 10; // 每次翻译10个文本
+      const chunks = [];
+      
+      for (let i = 0; i < texts.length; i += chunkSize) {
+        chunks.push(texts.slice(i, i + chunkSize).join("\n"));
+      }
+      
+      // 为了避免频率限制，添加延迟处理
+      const results = [];
+      for (let i = 0; i < chunks.length; i++) {
+        if (i > 0) {
+          // 每个请求之间延迟300ms，避免频率限制
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+        const result = await translateChunk(chunks[i]);
+        results.push(result);
+      }
+      
+      // 将分块的结果重新组合
+      const translatedValues = results.flatMap(
+        (result) => result.trans_result?.map((res: { dst: string }) => res.dst) || []
+      );
+      
+      return translatedValues;
     } catch (error) {
       message.error({
         content: "翻译失败, 请检查网络连接或API密钥是否正确",
@@ -223,25 +249,37 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
     }
   };
 
-  const translateChunk = (query: string) => {
-    const salt = Date.now().toString();
-    const sign = MD5(appid + query + salt + apiKey).toString();
-    const url = `https://api.fanyi.baidu.com/api/trans/vip/translate?q=${encodeURIComponent(
-      query
-    )}&appid=${appid}&salt=${salt}&from=${fromLang}&to=${toLang}&sign=${sign}`;
+  const translateChunk = async (query: string) => {
+    try {
+      const response = await axios.post(config.api.proxyApiUrl, {
+        query,
+        from: fromLang,
+        to: toLang,
+        appid,
+        apiKey,
+      }, {
+        timeout: 10000,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    return new Promise<{ trans_result: Array<{ dst: string }> }>(
-      (resolve, reject) => {
-        jsonp(url, { param: "callback" }, (err, data) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(data);
-            console.log(data);
-          }
-        });
+      const data = response.data;
+      
+      if (!data.success || data.error) {
+        throw new Error(data.error?.message || '翻译请求失败');
       }
-    );
+
+      if (!data.data?.trans_result) {
+        throw new Error('翻译结果为空');
+      }
+
+      console.log(data);
+      return { trans_result: data.data.trans_result };
+    } catch (error: unknown) {
+      console.error('翻译请求失败:', error);
+      throw error;
+    }
   };
 
   return (
@@ -263,6 +301,33 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
           label="目标语言"
         />
       </Space>
+
+      {/* 查看示例按钮 */}
+      <div className="flex justify-between items-center mt-4 mb-2">
+        <span className="text-sm text-gray-600 dark:text-gray-400">
+          💡 不知道如何输入？
+        </span>
+        <Button
+          type="link"
+          size="small"
+          icon={<EyeOutlined />}
+          onClick={() => setIsExampleModalOpen(true)}
+          className="text-blue-500 hover:text-blue-600"
+        >
+          点击查看案例格式
+        </Button>
+      </div>
+
+      {/* 示例格式弹窗 */}
+      <ExampleFormatModal
+        open={isExampleModalOpen}
+        onCancel={() => setIsExampleModalOpen(false)}
+        title={EXAMPLE_FORMATS.complexJSON.title}
+        description={EXAMPLE_FORMATS.complexJSON.description}
+        example={EXAMPLE_FORMATS.complexJSON.example}
+        mode="complexJSON"
+      />
+
       <ShowFileModel
         open={isModalOpen}
         onCancel={closeModal}
@@ -273,7 +338,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
         allowClear
         value={textData}
         onChange={(e) => setTextData(e.target.value)}
-        placeholder="请输入待翻译的 JSON 格式数据"
+        placeholder={EXAMPLE_FORMATS.complexJSON.placeholder}
         autoSize={{ minRows: 6, maxRows: 10 }}
         className="mt-4"
         showCount
@@ -298,12 +363,12 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
         </Button>
       </Space>
       
-      {/* 如果正在加载中且没有结果，显示加载提示 */}
-      {isLoading && !transResult && (
-        <div className="mt-4 text-center">
-          <div className="text-lg">正在为你翻译请稍等...</div>
-        </div>
-      )}
+             {/* 如果正在加载中且没有结果，显示加载提示 */}
+       {isLoading && !transResult && (
+         <div className="mt-4 text-center">
+           <div className="text-lg">正在为你翻译复杂JSON模式请稍等...</div>
+         </div>
+       )}
       
       {transResult && (
         <>

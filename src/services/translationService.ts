@@ -1,20 +1,25 @@
-import jsonp from 'jsonp';
-import MD5 from 'md5';
+import axios from 'axios';
 import { config, logger } from '@/config/env';
 import PerformanceMonitor from '@/utils/performance';
 
 /**
- * 翻译API响应接口
+ * 代理服务器响应接口
  */
-export interface TranslationResponse {
-  from: string;
-  to: string;
-  trans_result: Array<{
-    src: string;
-    dst: string;
-  }>;
-  error_code?: string;
-  error_msg?: string;
+export interface TranslationProxyResponse {
+  success: boolean;
+  data?: {
+    from: string;
+    to: string;
+    result: string;
+    trans_result: Array<{
+      src: string;
+      dst: string;
+    }>;
+  };
+  error?: {
+    code: string;
+    message: string;
+  };
 }
 
 /**
@@ -30,42 +35,24 @@ export interface TranslationParams {
 
 /**
  * 翻译服务类
- * 封装百度翻译API调用逻辑
+ * 封装翻译代理服务调用逻辑
  */
 export class TranslationService {
-  private static readonly API_URL = config.api.baiduTranslateUrl;
+  private static readonly PROXY_API_URL = config.api.proxyApiUrl;
   
   /**
-   * 生成签名
-   * @param appid 应用ID
-   * @param query 查询字符串
-   * @param salt 随机数
-   * @param apiKey API密钥
-   * @returns 签名字符串
-   */
-  private static generateSign(appid: string, query: string, salt: string, apiKey: string): string {
-    return MD5(appid + query + salt + apiKey).toString();
-  }
-
-  /**
-   * 构建请求URL
+   * 构建请求数据
    * @param params 翻译参数
-   * @returns 完整的请求URL
+   * @returns 请求数据对象
    */
-  private static buildRequestUrl(params: TranslationParams): string {
-    const salt = Date.now().toString();
-    const sign = this.generateSign(params.appid, params.query, salt, params.apiKey);
-    
-    const urlParams = new URLSearchParams({
-      q: params.query,
-      appid: params.appid,
-      salt,
+  private static buildRequestData(params: TranslationParams): Record<string, string> {
+    return {
+      query: params.query,
       from: params.from,
       to: params.to,
-      sign,
-    });
-
-    return `${this.API_URL}?${urlParams.toString()}`;
+      appid: params.appid,
+      apiKey: params.apiKey,
+    };
   }
 
   /**
@@ -75,73 +62,65 @@ export class TranslationService {
    */
   static async translate(params: TranslationParams): Promise<string> {
     return PerformanceMonitor.measure('translation-request', async () => {
-      return new Promise((resolve, reject) => {
-        const url = this.buildRequestUrl(params);
+      try {
+        const requestData = this.buildRequestData(params);
         
         logger.debug('发起翻译请求:', { from: params.from, to: params.to, queryLength: params.query.length });
         
-        jsonp(url, { 
-          param: 'callback', 
-          timeout: config.api.timeout 
-        }, (err, data: TranslationResponse) => {
-          if (err) {
-            logger.error('翻译请求失败:', err);
-            reject(new Error(`网络请求失败: ${err.message}`));
-            return;
+        const response = await axios.post<TranslationProxyResponse>(
+          this.PROXY_API_URL,
+          requestData,
+          {
+            timeout: config.api.timeout,
+            headers: {
+              'Content-Type': 'application/json',
+            },
           }
+        );
 
-          // 检查API返回的错误
-          if (data.error_code) {
-            const errorMessage = this.getErrorMessage(data.error_code);
-            logger.error('翻译API错误:', { code: data.error_code, message: errorMessage });
-            reject(new Error(errorMessage));
-            return;
-          }
+        const data = response.data;
 
-          // 检查翻译结果
-          if (!data.trans_result || data.trans_result.length === 0) {
-            logger.error('翻译结果为空:', data);
-            reject(new Error('翻译结果为空'));
-            return;
-          }
+        // 检查代理服务返回的错误
+        if (!data.success || data.error) {
+          const errorMessage = data.error?.message || '翻译请求失败';
+          logger.error('翻译代理服务错误:', { 
+            code: data.error?.code, 
+            message: errorMessage 
+          });
+          throw new Error(errorMessage);
+        }
 
-          // 合并翻译结果
-          const result = data.trans_result
-            .map(item => item.dst)
-            .join('\n');
-          
-          logger.debug('翻译成功:', { resultLength: result.length });
-          resolve(result);
-        });
-      });
+        // 检查翻译结果
+        if (!data.data?.result) {
+          logger.error('翻译结果为空:', data);
+          throw new Error('翻译结果为空');
+        }
+
+        logger.debug('翻译成功:', { resultLength: data.data.result.length });
+        return data.data.result;
+
+      } catch (error: any) {
+        logger.error('翻译请求失败:', error);
+        
+        // 处理不同类型的错误
+        if (error.code === 'ECONNABORTED') {
+          throw new Error('请求超时，请稍后重试');
+        }
+        
+        if (error.response?.status === 429) {
+          throw new Error('请求过于频繁，请稍后重试');
+        }
+        
+        if (error.response?.data?.error?.message) {
+          throw new Error(error.response.data.error.message);
+        }
+        
+        throw new Error(error.message || '网络请求失败');
+      }
     });
   }
 
-  /**
-   * 获取错误信息
-   * @param errorCode 错误代码
-   * @returns 错误信息
-   */
-  private static getErrorMessage(errorCode: string): string {
-    const errorMessages: Record<string, string> = {
-      '52001': 'APP ID 不存在，请检查您的 APP ID 是否正确',
-      '52002': '签名错误，请检查您的密钥是否正确',
-      '52003': '访问频率受限，请降低请求频率',
-      '52004': '账户余额不足，请及时充值',
-      '52005': '长query请求频繁，请降低长query的发送频率',
-      '54000': '必填参数为空，请检查是否少传参数',
-      '54001': '签名错误，请检查您的签名生成方法',
-      '54003': '访问频率受限，请降低您的调用频率',
-      '54004': '账户余额不足，请前往管理控制台为账户充值',
-      '54005': '长query请求频繁，请降低长query的发送频率',
-      '58000': '客户端IP非法，检查个人资料里填写的IP地址是否正确',
-      '58001': '译文语言方向不支持，检查译文语言是否在语言列表里',
-      '58002': '服务当前已关闭，请前往管理控制台开启服务',
-      '90107': '认证未通过或未生效，请前往我的认证查看认证进度',
-    };
 
-    return errorMessages[errorCode] || `翻译服务错误 (错误码: ${errorCode})`;
-  }
 
   /**
    * 验证翻译参数

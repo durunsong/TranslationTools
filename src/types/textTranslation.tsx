@@ -18,4 +18,6 @@ export interface ShowFileModelProps {
   onCancel: () => void;
   onSuffixSelect: (suffix: string, exportType: string) => void; // 父组件事件，通过确认按钮触发
   toLang?: string; // 选择的目标语言
+  defaultSuffix?: string; // 默认文件后缀
+  defaultExport?: string; // 默认导出类型
 }

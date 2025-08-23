@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Flex, Radio, Button, Space, Typography } from "antd";
 import type { RadioChangeEvent } from "antd";
 import { ShowFileModelProps } from "@/types/textTranslation";
@@ -10,10 +10,18 @@ const ShowFileModel: React.FC<ShowFileModelProps> = ({
   onCancel,
   onSuffixSelect,
   toLang,
+  defaultSuffix = "js",
+  defaultExport = "No",
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [selectedSuffix, setSelectedSuffix] = useState<string>("js");
-  const [selectedExport, setSelectedExport] = useState<string>("No");
+  const [selectedSuffix, setSelectedSuffix] = useState<string>(defaultSuffix);
+  const [selectedExport, setSelectedExport] = useState<string>(defaultExport);
+
+  // 当默认值改变时更新状态
+  useEffect(() => {
+    setSelectedSuffix(defaultSuffix);
+    setSelectedExport(defaultExport);
+  }, [defaultSuffix, defaultExport]);
 
   const file_suffix = [
     { value: "js", label: "js" },
