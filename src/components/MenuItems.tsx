@@ -1,5 +1,6 @@
 import type { MenuProps } from "antd";
 import { BaiduOutlined, GithubOutlined, HeartOutlined } from "@ant-design/icons";
+import i18n from "@/i18n";
 
 const getMenuItems = (): MenuProps["items"] => [
   {
@@ -10,7 +11,7 @@ const getMenuItems = (): MenuProps["items"] => [
         rel="noopener noreferrer"
         href="https://fanyi-api.baidu.com/doc/21"
       >
-        百度翻译API文档
+{i18n.t('menu.baiduApiDocs')}
       </a>
     ),
     extra: "⌘D",
@@ -27,7 +28,7 @@ const getMenuItems = (): MenuProps["items"] => [
         rel="noopener noreferrer"
         href="https://github.com/durunsong/TranslationTools"
       >
-        github 地址
+{i18n.t('menu.githubRepo')}
       </a>
     ),
     extra: "⌘R",
@@ -44,7 +45,7 @@ const getMenuItems = (): MenuProps["items"] => [
         rel="noopener noreferrer"
         href="https://github.com/durunsong/TranslationTools"
       >
-        记得得点个Star哦！🌹
+{i18n.t('menu.starRepo')}
       </a>
     ),
     extra: "⌘S",

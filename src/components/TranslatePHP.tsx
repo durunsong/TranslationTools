@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { App, Button, Typography, Input, Space } from "antd";
 import { EyeOutlined, CopyOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 import LanguageSelect from "./LanguageSelect";
 import ShowFileModel from "./ShowFileModel";
@@ -8,7 +9,7 @@ import ExampleFormatModal from "./ExampleFormatModal";
 import { TextTranslationProps } from "@/types/textTranslation";
 import { useTranslationLoading } from "@/hooks/useTranslationLoading";
 import { config } from "@/config/env";
-import { EXAMPLE_FORMATS } from "@/constants/exampleFormats";
+import { getExampleFormats } from "@/constants/exampleFormats";
 
 const { TextArea } = Input;
 const { Paragraph, Title } = Typography;
@@ -327,9 +328,12 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
   const [transResult, setTransResult] = useState<string | null>(null);
   const { isLoading, startLoading, stopLoading } = useTranslationLoading();
   const { message } = App.useApp();
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isExampleModalOpen, setIsExampleModalOpen] = useState(false);
   const [selectedSuffix, setSelectedSuffix] = useState<string>("php");
+  
+  const EXAMPLE_FORMATS = getExampleFormats();
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -573,7 +577,7 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
   return (
     <>
       <Title level={5} className="mt-2">
-        🧭请选择目标语言和输入你需要翻译的PHP数组⬇
+        {t('translation.selectLanguageAndInputPHP', '🧭请选择目标语言和输入你需要翻译的PHP数组⬇')}
       </Title>
       <Space wrap>
         <LanguageSelect
@@ -593,7 +597,7 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
       {/* 查看示例按钮 */}
       <div className="flex justify-between items-center mt-4 mb-2">
         <span className="text-sm text-gray-600 dark:text-gray-400">
-          💡 不知道如何输入？
+          {t('translation.dontKnowHowToInput')}
         </span>
         <Button
           type="link"
@@ -602,7 +606,7 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
           onClick={() => setIsExampleModalOpen(true)}
           className="text-blue-500 hover:text-blue-600"
         >
-          点击查看案例格式
+          {t('translation.viewExample')}
         </Button>
       </div>
 
@@ -643,7 +647,7 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
           className="mt-4"
           loading={isLoading}
         >
-          {isLoading ? "翻译中..." : "直接翻译"}
+          {isLoading ? t('translation.translating') : t('translation.directTranslate')}
         </Button>
         <Button 
           type="primary" 
@@ -651,14 +655,14 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
           className="mt-4"
           loading={isLoading}
         >
-          {isLoading ? "翻译中..." : `翻译并下载 ${toLang}.${selectedSuffix}`}
+          {isLoading ? t('translation.translating') : `${t('translation.translateAndDownload')} ${toLang}.${selectedSuffix}`}
         </Button>
       </Space>
       
              {/* 加载提示 */}
        {isLoading && !transResult && (
          <div className="mt-4 text-center">
-           <div className="text-lg">正在为你翻译PHP数组模式请稍等...</div>
+           <div className="text-lg">{t('translation.translatingPHP', '正在为你翻译PHP数组模式请稍等...')}</div>
          </div>
        )}
       
@@ -667,7 +671,7 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
         <>
           <div className="flex items-center justify-between mt-4">
             <Title level={5} className="mb-0">
-              🧭翻译结果 ({detectInputFormat(textData).toUpperCase()}格式)⬇
+              {t('translation.translationResultWithFormat', '🧭翻译结果 ({format})⬇', { format: detectInputFormat(textData).toUpperCase() })}
             </Title>
             <Button
               type="text"
@@ -676,7 +680,7 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
               className="flex items-center"
               size="small"
             >
-              复制翻译结果
+              {t('translation.copyResult')}
             </Button>
           </div>
           <Paragraph

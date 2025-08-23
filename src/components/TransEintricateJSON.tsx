@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { App, Button, Typography, Input, Space } from "antd";
 import { EyeOutlined, CopyOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 import LanguageSelect from "./LanguageSelect";
 import ShowFileModel from "./ShowFileModel";
@@ -8,7 +9,7 @@ import ExampleFormatModal from "./ExampleFormatModal";
 import { TextTranslationProps } from "@/types/textTranslation";
 import { useTranslationLoading } from "@/hooks/useTranslationLoading";
 import { config } from "@/config/env";
-import { EXAMPLE_FORMATS } from "@/constants/exampleFormats";
+import { getExampleFormats } from "@/constants/exampleFormats";
 
 const { TextArea } = Input;
 const { Paragraph, Title } = Typography;
@@ -27,6 +28,9 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
 
   const { isLoading, startLoading, stopLoading } = useTranslationLoading();
   const { message } = App.useApp();
+  const { t } = useTranslation();
+  
+  const EXAMPLE_FORMATS = getExampleFormats();
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -331,7 +335,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
   return (
     <>
       <Title level={5} className="mt-2">
-        🧭请选择目标语言和输入你需要转化的JSON⬇
+        {t('translation.selectLanguageAndInputJSON')}
       </Title>
       <Space>
         <LanguageSelect
@@ -351,7 +355,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
       {/* 查看示例按钮 */}
       <div className="flex justify-between items-center mt-4 mb-2">
         <span className="text-sm text-gray-600 dark:text-gray-400">
-          💡 不知道如何输入？
+          {t('translation.dontKnowHowToInput')}
         </span>
         <Button
           type="link"
@@ -360,7 +364,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
           onClick={() => setIsExampleModalOpen(true)}
           className="text-blue-500 hover:text-blue-600"
         >
-          点击查看案例格式
+          {t('translation.viewExample')}
         </Button>
       </div>
 
@@ -397,7 +401,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
           className="mt-4"
           loading={isLoading}
         >
-          {isLoading ? "翻译中..." : "直接翻译"}
+          {isLoading ? t('translation.translating') : t('translation.directTranslate')}
         </Button>
         <Button 
           type="primary" 
@@ -405,14 +409,14 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
           className="mt-4 ml-4"
           loading={isLoading}
         >
-          {isLoading ? "翻译中..." : `翻译并且下载 ${toLang}.${selectedSuffix || "js"}`}
+          {isLoading ? t('translation.translating') : `${t('translation.translateAndDownload')} ${toLang}.${selectedSuffix || "js"}`}
         </Button>
       </Space>
       
              {/* 如果正在加载中且没有结果，显示加载提示 */}
        {isLoading && !transResult && (
          <div className="mt-4 text-center">
-           <div className="text-lg">正在为你翻译复杂JSON模式请稍等...</div>
+           <div className="text-lg">{t('translation.translatingComplexJSON', '正在为你翻译复杂JSON模式请稍等...')}</div>
          </div>
        )}
       
@@ -420,7 +424,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
         <>
           <div className="flex items-center justify-between mt-4">
             <Title level={5} className="mb-0">
-              🧭翻译结果⬇
+              {t('translation.translationResult')}
             </Title>
             <Button
               type="text"
@@ -429,7 +433,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
               className="flex items-center"
               size="small"
             >
-              复制翻译结果
+              {t('translation.copyResult')}
             </Button>
           </div>
           <Paragraph

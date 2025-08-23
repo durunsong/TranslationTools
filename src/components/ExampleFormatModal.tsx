@@ -1,6 +1,7 @@
 import React from "react";
 import { Modal, Typography, Button, App } from "antd";
 import { CopyOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 
 const { Paragraph, Title } = Typography;
 
@@ -22,13 +23,14 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
   mode,
 }) => {
   const { message } = App.useApp();
+  const { t } = useTranslation();
 
   // 复制案例格式到剪贴板
   const handleCopyExample = async () => {
     try {
       await navigator.clipboard.writeText(example);
       message.success({
-        content: "案例格式已复制到剪贴板",
+        content: t('translation.exampleCopied', '案例格式已复制到剪贴板'),
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
@@ -42,14 +44,14 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
       try {
         document.execCommand('copy');
         message.success({
-          content: "案例格式已复制到剪贴板",
+          content: t('translation.exampleCopied', '案例格式已复制到剪贴板'),
           className: document.documentElement.classList.contains("dark")
             ? "message-dark"
             : "message-light",
         });
       } catch {
         message.error({
-          content: "复制失败，请手动复制",
+          content: t('translation.copyError'),
           className: document.documentElement.classList.contains("dark")
             ? "message-dark"
             : "message-light",
@@ -90,7 +92,7 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
       width={700}
       footer={[
         <Button key="close" onClick={onCancel}>
-          关闭
+          {t('common.close')}
         </Button>
       ]}
       className="example-format-modal"
@@ -109,7 +111,7 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
           <div className="flex items-center gap-2">
             <span className="text-gray-600 dark:text-gray-400">🖨</span>
             <Title level={5} className="m-0">
-              示例格式：
+              {t('translation.exampleFormat')}：
             </Title>
           </div>
           <Button
@@ -119,7 +121,7 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
             className="flex items-center text-blue-500 hover:text-blue-600"
             size="small"
           >
-            复制案例格式
+            {t('translation.copyExample')}
           </Button>
         </div>
 
@@ -129,10 +131,10 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
             copyable={{
               icon: [
                 <CopyOutlined key="copy" className="text-gray-500 hover:text-blue-500" />,
-                <span key="copied" className="text-green-500 text-xs">已复制</span>
+                <span key="copied" className="text-green-500 text-xs">{t('common.copied', '已复制')}</span>
               ],
               text: example,
-              tooltips: ['复制代码', '已复制'],
+              tooltips: [t('common.copyCode', '复制代码'), t('common.copied', '已复制')],
             }}
             className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg font-mono text-sm whitespace-pre-wrap border"
             style={{
@@ -151,9 +153,9 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
           <div className="flex items-start gap-2">
             <span className="text-green-500 mt-0.5">💡</span>
             <div className="text-green-700 dark:text-green-300">
-              <p className="m-0 font-medium">使用提示：</p>
+              <p className="m-0 font-medium">{t('translation.usageTips')}：</p>
               <p className="m-0 mt-1 text-sm">
-                您可以直接复制上面的示例代码到输入框中进行测试，或者参考格式编写您自己的内容。
+                {t('translation.usageDescription')}
               </p>
             </div>
           </div>

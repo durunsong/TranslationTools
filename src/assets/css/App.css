@@ -9,11 +9,197 @@
   align-items: center;
 }
 
-/* message 字体颜色 */
+.responsive-space .ant-segmented {
+  width: auto !important;
+  gap: 0 !important;
+}
+
+.responsive-space .ant-segmented-item {
+  flex: 0 0 auto !important;
+  min-width: fit-content !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+
+.responsive-space .ant-segmented-item-label {
+  margin: 0 !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
 .message-light span{
   color: #000;
 }
 
 .message-dark span{
   color: #fff; 
+}
+
+@media (max-width: 768px) {
+  .ant-layout-content > .ant-space {
+    flex-wrap: wrap;
+    gap: 8px !important;
+  }
+  
+  .ant-layout-content .ant-segmented {
+    min-width: auto !important;
+    width: auto !important;
+  }
+  
+  .ant-layout-content .ant-segmented .ant-segmented-item {
+    min-width: 40px !important;
+    padding: 4px 8px !important;
+  }
+  
+  .ant-layout-content .theme-switcher.ant-segmented .ant-segmented-item-selected {
+    background: #eab308 !important;
+    color: #000 !important;
+  }
+  
+  html.dark .ant-layout-content .theme-switcher.ant-segmented .ant-segmented-item-selected {
+    background: #662626 !important;
+    color: #fff !important;
+  }
+  
+  .responsive-space .ant-segmented {
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 0 !important;
+  }
+  
+  .responsive-space .ant-segmented-item {
+    flex: 0 0 auto !important;
+    min-width: fit-content !important;
+    width: auto !important;
+    text-align: center;
+    margin: 0 !important;
+  }
+  
+  .responsive-space .ant-segmented-item-label {
+    font-size: 12px;
+    padding: 4px 8px;
+    white-space: nowrap;
+    margin: 0 !important;
+  }
+  
+  .ant-select {
+    min-width: 100px !important;
+  }
+  
+  .ant-select-selector {
+    font-size: 13px !important;
+    padding: 2px 8px !important;
+    border: 1px solid #d9d9d9 !important;
+    background: #ffffff !important;
+  }
+  
+  .ant-select-selection-item {
+    font-size: 13px !important;
+  }
+  
+  html.dark .ant-select-selector {
+    border: 1px solid #434343 !important;
+    background: #1f1f1f !important;
+    color: #ffffff !important;
+  }
+  
+  html.dark .ant-select-selection-item {
+    color: #ffffff !important;
+  }
+  
+  html.dark .ant-select-arrow {
+    color: #ffffff !important;
+  }
+  
+  .ant-btn {
+    font-size: 13px;
+    padding: 4px 12px;
+  }
+  
+  .ant-typography h5 {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  
+  .ant-typography {
+    font-size: 13px;
+  }
+  
+  .input-appid-key .ant-space {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  
+  .input-appid-key .ant-input {
+    min-width: 120px;
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .ant-segmented-item-label {
+    font-size: 11px;
+    padding: 2px 4px;
+  }
+  
+  .ant-btn {
+    font-size: 12px;
+    padding: 2px 8px;
+  }
+  
+  .ant-typography h5 {
+    font-size: 13px;
+  }
+  
+  .ant-select {
+    min-width: 80px !important;
+  }
+  
+  .ant-select-selector {
+    font-size: 12px !important;
+    padding: 1px 6px !important;
+    border: 1px solid #d9d9d9 !important;
+    background: #ffffff !important;
+  }
+  
+  .ant-select-selection-item {
+    font-size: 12px !important;
+  }
+  
+  html.dark .ant-select-selector {
+    border: 1px solid #434343 !important;
+    background: #1f1f1f !important;
+    color: #ffffff !important;
+  }
+  
+  .theme-switcher .ant-segmented-item {
+    min-width: 35px !important;
+    padding: 2px 4px !important;
+  }
+  
+  .ant-layout-content .theme-switcher.ant-segmented .ant-segmented-item-selected {
+    background: #eab308 !important;
+    color: #000 !important;
+  }
+  
+  html.dark .ant-layout-content .theme-switcher.ant-segmented .ant-segmented-item-selected {
+    background: #662626 !important;
+    color: #fff !important;
+  }
+  
+  .responsive-space .ant-segmented-item {
+    flex: 0 0 auto !important;
+    min-width: fit-content !important;
+    width: auto !important;
+    margin: 0 !important;
+  }
+  
+  .responsive-space .ant-segmented-item-label {
+    font-size: 10px;
+    padding: 2px 4px;
+    margin: 0 !important;
+  }
+  
+  .ant-layout-content > .ant-space {
+    gap: 4px !important;
+  }
 }

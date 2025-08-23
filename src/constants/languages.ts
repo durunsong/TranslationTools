@@ -1,79 +1,72 @@
-/**
- * 支持的语言列表
- * 百度翻译API支持的语言代码和名称映射
- */
+import i18n from '@/i18n';
+
 export interface LanguageOption {
   value: string;
   label: string;
 }
+const LANGUAGE_CODES = [
+  { value: "auto", defaultLabel: "自动检测", key: 'languages.auto' },
+  { value: "zh", defaultLabel: "中文", key: 'languages.zh' },
+  { value: "en", defaultLabel: "英语", key: 'languages.en' },
+  { value: "jp", defaultLabel: "日语", key: 'languages.jp' },
+  { value: "kor", defaultLabel: "韩语", key: 'languages.kor' },
+  { value: "fra", defaultLabel: "法语", key: 'languages.fra' },
+  { value: "de", defaultLabel: "德语", key: 'languages.de' },
+  { value: "ru", defaultLabel: "俄语", key: 'languages.ru' },
+  { value: "spa", defaultLabel: "西班牙语", key: 'languages.spa' },
+  { value: "it", defaultLabel: "意大利语", key: 'languages.it' },
+  { value: "pt", defaultLabel: "葡萄牙语", key: 'languages.pt' },
+  { value: "ara", defaultLabel: "阿拉伯语", key: 'languages.ara' },
+  { value: "th", defaultLabel: "泰语", key: 'languages.th' },
+  { value: "vie", defaultLabel: "越南语", key: 'languages.vie' },
+  { value: "cht", defaultLabel: "繁体中文", key: 'languages.cht' },
+  { value: "pl", defaultLabel: "波兰语", key: 'languages.pl' },
+  { value: "dan", defaultLabel: "丹麦语", key: 'languages.dan' },
+  { value: "nl", defaultLabel: "荷兰语", key: 'languages.nl' },
+  { value: "el", defaultLabel: "希腊语", key: 'languages.el' },
+  { value: "cs", defaultLabel: "捷克语", key: 'languages.cs' },
+  { value: "swe", defaultLabel: "瑞典语", key: 'languages.swe' },
+  { value: "fin", defaultLabel: "芬兰语", key: 'languages.fin' },
+  { value: "rom", defaultLabel: "罗马尼亚语", key: 'languages.rom' },
+  { value: "hu", defaultLabel: "匈牙利语", key: 'languages.hu' },
+] as const;
 
 /**
- * 语言选项列表
- * 按使用频率排序，常用语言在前
+ * 获取国际化的语言选项列表
+ * 每次调用时动态获取当前语言的翻译
  */
-export const LANGUAGE_OPTIONS: readonly LanguageOption[] = [
-  { value: "auto", label: "自动检测" },
-  { value: "zh", label: "中文" },
-  { value: "en", label: "英语" },
-  { value: "jp", label: "日语" },
-  { value: "kor", label: "韩语" },
-  { value: "fra", label: "法语" },
-  { value: "de", label: "德语" },
-  { value: "ru", label: "俄语" },
-  { value: "spa", label: "西班牙语" },
-  { value: "it", label: "意大利语" },
-  { value: "pt", label: "葡萄牙语" },
-  { value: "ara", label: "阿拉伯语" },
-  { value: "th", label: "泰语" },
-  { value: "vie", label: "越南语" },
-  { value: "cht", label: "繁体中文" },
-  { value: "pl", label: "波兰语" },
-  { value: "dan", label: "丹麦语" },
-  { value: "nl", label: "荷兰语" },
-  { value: "el", label: "希腊语" },
-  { value: "cs", label: "捷克语" },
-  { value: "swe", label: "瑞典语" },
-  { value: "fin", label: "芬兰语" },
-  { value: "rom", label: "罗马尼亚语" },
-  { value: "hu", label: "匈牙利语" },
-] as const;
+export const getLanguageOptions = (): readonly LanguageOption[] => {
+  return LANGUAGE_CODES.map(({ value, defaultLabel, key }) => ({
+    value,
+    label: i18n.isInitialized ? i18n.t(key, defaultLabel) : defaultLabel
+  }));
+};
+
+// 为了向后兼容，保留静态的 LANGUAGE_OPTIONS
+export const LANGUAGE_OPTIONS = getLanguageOptions();
 
 /**
  * 常用语言对
  * 用于快速选择常见的翻译方向
  */
-export const COMMON_LANGUAGE_PAIRS = [
-  { from: "zh", to: "en", label: "中文 → 英语" },
-  { from: "en", to: "zh", label: "英语 → 中文" },
-  { from: "zh", to: "jp", label: "中文 → 日语" },
-  { from: "jp", to: "zh", label: "日语 → 中文" },
-  { from: "zh", to: "kor", label: "中文 → 韩语" },
-  { from: "kor", to: "zh", label: "韩语 → 中文" },
+export const getCommonLanguagePairs = () => [
+  { from: "zh", to: "en", label: i18n.isInitialized ? i18n.t('languagePairs.zhToEn', '中文 → 英语') : '中文 → 英语' },
+  { from: "en", to: "zh", label: i18n.isInitialized ? i18n.t('languagePairs.enToZh', '英语 → 中文') : '英语 → 中文' },
+  { from: "zh", to: "jp", label: i18n.isInitialized ? i18n.t('languagePairs.zhToJp', '中文 → 日语') : '中文 → 日语' },
+  { from: "jp", to: "zh", label: i18n.isInitialized ? i18n.t('languagePairs.jpToZh', '日语 → 中文') : '日语 → 中文' },
+  { from: "zh", to: "kor", label: i18n.isInitialized ? i18n.t('languagePairs.zhToKor', '中文 → 韩语') : '中文 → 韩语' },
+  { from: "kor", to: "zh", label: i18n.isInitialized ? i18n.t('languagePairs.korToZh', '韩语 → 中文') : '韩语 → 中文' },
 ] as const;
+
+export const COMMON_LANGUAGE_PAIRS = getCommonLanguagePairs();
 
 /**
  * 获取语言名称
  * @param code 语言代码
  * @returns 语言名称
  */
-export function getLanguageName(code: string): string {
-  const language = LANGUAGE_OPTIONS.find(lang => lang.value === code);
-  return language?.label || code;
-}
-
-/**
- * 检查是否为有效的语言代码
- * @param code 语言代码
- * @returns 是否有效
- */
-export function isValidLanguageCode(code: string): boolean {
-  return LANGUAGE_OPTIONS.some(lang => lang.value === code);
-}
-
-/**
- * 获取除自动检测外的语言选项
- * @returns 语言选项列表（不包含自动检测）
- */
-export function getTargetLanguageOptions(): readonly LanguageOption[] {
-  return LANGUAGE_OPTIONS.filter(lang => lang.value !== "auto");
-}
+export const getLanguageName = (code: string): string => {
+  const options = getLanguageOptions();
+  const option = options.find(opt => opt.value === code);
+  return option?.label || code;
+};

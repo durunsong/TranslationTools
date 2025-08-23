@@ -16,16 +16,18 @@ import LightIcon from "@/assets/themeIcons/LightIcon.tsx";
 import DarkIcon from "@/assets/themeIcons/DarkIcon.tsx";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useThemeStore } from "@/stores/useThemeStore";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import getMenuItems from "@/components/MenuItems"; 
 import "@/assets/css/App.css";
+import { useTranslation } from "react-i18next";
 
-// 懒加载主要组件
 const Resolver = React.lazy(() => import("@/view/resolver.tsx"));
 
 const { Text } = Typography;
 
 const App: React.FC = () => {
   const { themeMode, setThemeMode } = useThemeStore();
+  const { t } = useTranslation();
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", themeMode === "dark");
@@ -42,7 +44,7 @@ const App: React.FC = () => {
       Segmented: {
         itemColor: themeMode === "light" ? "#000" : "#fff",
         itemHoverColor: themeMode === "light" ? "#1890ff" : "#40a9ff",
-        itemSelectedBg: themeMode === "light" ? "#eab308" : "#662626",
+        itemSelectedBg: themeMode === "light" ? "#eab308" : "#662626", // 恢复黄色作为默认
         trackPadding: 6,
       },
     },
@@ -56,10 +58,11 @@ const App: React.FC = () => {
             <Space className="flex items-center justify-end">
               <Dropdown menu={{ items: getMenuItems() }}>
                 <Space className="cursor-pointer">
-                  <Text>🌏点击查看API文档和代码</Text>
+                  <Text>{t('header.apiDocsAndCode')}</Text>
                   <DownOutlined />
                 </Space>
               </Dropdown>
+              <LanguageSwitcher />
               <Segmented
                 options={[
                   { value: "light", icon: <LightIcon /> },
@@ -71,7 +74,7 @@ const App: React.FC = () => {
                     themeMode === "light" ? "#d9d9d9" : "#434343"
                   }`,
                 }}
-                className={`p-1 rounded-lg ${
+                className={`theme-switcher p-1 rounded-lg ${
                   themeMode === "light"
                     ? "bg-gray-100 text-black"
                     : "bg-gray-700 text-white"
@@ -86,7 +89,7 @@ const App: React.FC = () => {
                     <Spin size="large" spinning={true}>
                       <div className="text-center p-8">
                         <div className="text-lg text-gray-600 dark:text-gray-300">
-                          加载中...
+                          {t('common.loading')}
                         </div>
                       </div>
                     </Spin>

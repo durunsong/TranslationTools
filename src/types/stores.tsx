@@ -11,3 +11,9 @@ export interface ThemeStore {
   setThemeMode: (mode: string) => void;
 }
 
+// store中语言设置字段
+export interface LanguageStore {
+  language: string;
+  setLanguage: (language: string) => void;
+}
+

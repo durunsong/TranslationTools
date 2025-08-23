@@ -4,22 +4,17 @@ import tailwindcss from "tailwindcss";
 import autoprefixer from "autoprefixer";
 import path from 'path';
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react()
   ],
   server: {
     port: 8000,
-    /** 设置 host: true 才可以使用 Network 的形式，以 IP 访问项目 */
-    host: true, // host: "0.0.0.0"
-    /** 是否自动打开浏览器 */
+    host: true,
     open: false,
-    /** 跨域设置允许 */
     cors: true,
     /** 端口被占用时，是否直接退出 */
     strictPort: false,
-    // 热模块替换
     hmr: true,
     proxy: {
       "/api": {

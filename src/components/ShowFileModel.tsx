@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Flex, Radio, Button, Space, Typography } from "antd";
 import type { RadioChangeEvent } from "antd";
+import { useTranslation } from "react-i18next";
 import { ShowFileModelProps } from "@/types/textTranslation";
 
 const { Text, Title } = Typography;
@@ -16,6 +17,7 @@ const ShowFileModel: React.FC<ShowFileModelProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedSuffix, setSelectedSuffix] = useState<string>(defaultSuffix);
   const [selectedExport, setSelectedExport] = useState<string>(defaultExport);
+  const { t } = useTranslation();
 
   // 当默认值改变时更新状态
   useEffect(() => {
@@ -39,8 +41,8 @@ const ShowFileModel: React.FC<ShowFileModelProps> = ({
   ];
 
   const is_export = [
-    { value: "No", label: "No" },
-    { value: "Yes", label: "Yes" },
+    { value: "No", label: t('common.no', 'No') },
+    { value: "Yes", label: t('common.yes', 'Yes') },
   ];
 
   const showLoading = () => {
@@ -62,10 +64,10 @@ const ShowFileModel: React.FC<ShowFileModelProps> = ({
 
   return (
     <Modal
-      title={<p className="mb-5">🧭 选择你想要的文件后缀名</p>}
+      title={<p className="mb-5">{t('fileModal.selectFileFormat', '🧭 选择你想要的文件后缀名')}</p>}
       footer={
         <Button type="primary" onClick={showLoading} loading={loading}>
-          确认
+          {t('common.confirm')}
         </Button>
       }
       open={open}
@@ -85,7 +87,7 @@ const ShowFileModel: React.FC<ShowFileModelProps> = ({
         </Radio.Group>
         <Space>
           <Title level={5} className="mt-2">
-            🧭 是否用 JS/TS 语法定义及导出
+            {t('fileModal.useJSExport', '🧭 是否用 JS/TS 语法定义及导出')}
           </Title>
           <Radio.Group
             value={selectedExport}
@@ -100,7 +102,7 @@ const ShowFileModel: React.FC<ShowFileModelProps> = ({
           </Radio.Group>
         </Space>
         <Space className="text-[18px]">
-          <Text>🌐 输出文件为：</Text>
+          <Text>{t('fileModal.outputFile', '🌐 输出文件为：')}</Text>
           <Text className="text-blue-500 text-[17px]">
             {toLang}.{selectedSuffix}
           </Text>

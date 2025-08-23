@@ -242,7 +242,7 @@ export function logPageLoadPerformance(): void {
         } catch (error) {
           console.error('📊 Performance monitoring error:', error);
         }
-      }, 100); // 增加延迟确保所有指标都已准备好
+      }, 100); 
     });
   }
 }

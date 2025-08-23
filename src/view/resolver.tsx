@@ -7,6 +7,7 @@ import {
   Button,
   App,
 } from "antd";
+import { useTranslation } from "react-i18next";
 import TranslateText from "@/components/TranslateText";
 import TranslateSimplerJSON from "@/components/TranslateSimplerJSON";
 import TransEintricateJSON from "@/components/TransEintricateJSON";
@@ -22,6 +23,7 @@ const ResolveComponent: React.FC = () => {
   const [localAppid, setLocalAppid] = useState<string>(appid || "");
   const [localKey, setLocalKey] = useState<string>(apiKey || "");
   const { message } = App.useApp();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // 获取 appid 和 apiKey 更新状态
@@ -34,14 +36,14 @@ const ResolveComponent: React.FC = () => {
       // 使用 Zustand 更新状态
       setCredentials(localAppid, localKey);
       message.success({
-        content: "App ID 和 Key 已保存！",
+        content: t('translation.credentialsSaved'),
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
       });
     } else {
       message.error({
-        content: "请输入 App ID 和 Key！",
+        content: t('translation.pleaseInputCredentials'),
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
@@ -76,29 +78,29 @@ const ResolveComponent: React.FC = () => {
     <div className="flex flex-col">
       <Space className="input-appid-key">
         <Title level={5} className="input-appid-key-title">
-          🧭请输入百度翻译AppID和Key：
+          {t('header.inputCredentials')}
         </Title>
         <Space>
           <Input
-            placeholder="App ID"
+            placeholder={t('header.appIdPlaceholder')}
             allowClear
             value={localAppid}
             onChange={(e) => setLocalAppid(e.target.value)}
           />
           <Input
-            placeholder="Key"
+            placeholder={t('header.keyPlaceholder')}
             allowClear
             value={localKey}
             onChange={(e) => setLocalKey(e.target.value)}
           />
           <Button type="primary" onClick={handleSaveCredentials}>
-            保存
+            {t('common.save')}
           </Button>
         </Space>
       </Space>
       <Space className="responsive-space">
         <Title level={5} className="responsive-space-title">
-          🧭请选择你需要的模式：
+          {t('header.selectMode')}
         </Title>
         <Segmented
           size="large"
@@ -106,19 +108,19 @@ const ResolveComponent: React.FC = () => {
           onChange={handleModeChange}
           options={[
             {
-              label: "文本模式",
+              label: t('modes.textMode'),
               value: "textMode",
             },
             {
-              label: "简单JSON模式",
+              label: t('modes.simpleJSONMode'),
               value: "simpleJSONMode",
             },
             {
-              label: "复杂JSON模式",
+              label: t('modes.complexJSONMode'),
               value: "complexJSONMode",
             },
             {
-              label: "PHP数组模式",
+              label: t('modes.phpMode'),
               value: "phpMode",
             },
           ]}

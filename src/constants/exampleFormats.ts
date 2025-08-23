@@ -1,6 +1,4 @@
-/**
- * 各种翻译模式的示例格式配置
- */
+import i18n from '@/i18n';
 
 export interface ExampleFormat {
   title: string;
@@ -9,24 +7,24 @@ export interface ExampleFormat {
   placeholder: string;
 }
 
-export const EXAMPLE_FORMATS = {
+export const getExampleFormats = () => ({
   text: {
-    title: '文本翻译模式',
-    description: '文本模式适合翻译普通的文字内容，支持多行文本和中英文混合翻译。',
+    title: i18n.t('examples.text.title', '文本翻译模式'),
+    description: i18n.t('examples.text.description', '文本模式适合翻译普通的文字内容，支持多行文本和中英文混合翻译。'),
     example: `This is a translation program that can translate various languages.
 It supports text translation in multiple formats.
 Hello World!
 Welcome to our application.`,
-    placeholder: `请输入待翻译的文本，例如：
+    placeholder: i18n.t('examples.text.placeholder', `请输入待翻译的文本，例如：
 This is a translation program that can translate various languages.
 It supports text translation in multiple formats.
 Hello World!
-Welcome to our application.`
+Welcome to our application.`)
   },
 
   simpleJSON: {
-    title: '简单JSON翻译模式',
-    description: '简单JSON模式适合翻译扁平结构的JSON数据，常用于网站界面文本的国际化。',
+    title: i18n.t('examples.simpleJSON.title', '简单JSON翻译模式'),
+    description: i18n.t('examples.simpleJSON.description', '简单JSON模式适合翻译扁平结构的JSON数据，常用于网站界面文本的国际化。'),
     example: `{
   "welcome_message": "Welcome to our website",
   "login_button": "Login",
@@ -38,7 +36,7 @@ Welcome to our application.`
   "submit_button": "Submit",
   "cancel_button": "Cancel"
 }`,
-    placeholder: `请输入待翻译的简单JSON格式数据，例如：
+    placeholder: i18n.t('examples.simpleJSON.placeholder', `请输入待翻译的简单JSON格式数据，例如：
 {
   "welcome_message": "Welcome to our website",
   "login_button": "Login",
@@ -46,72 +44,59 @@ Welcome to our application.`
   "home_title": "Home Page",
   "about_us": "About Us",
   "contact_info": "Contact Information"
-}`
+}`)
   },
 
   complexJSON: {
-    title: '复杂JSON翻译模式',
-    description: '复杂JSON模式适合翻译嵌套结构的JSON数据，支持多层级的数据组织，适用于复杂应用的国际化需求。',
+    title: i18n.t('examples.complexJSON.title', '复杂JSON翻译模式'),
+    description: i18n.t('examples.complexJSON.description', '复杂JSON模式适合翻译嵌套结构的JSON数据，支持多层级的对象和数组结构，适用于复杂的配置文件和数据结构。'),
     example: `{
-  "talented": "You're good!",
-  "symbolise": {
-    "title": "Get Success",
-    "content": "Get Success"
+  "app": {
+    "name": "Translation Tool",
+    "version": "1.0.0",
+    "description": "A powerful translation application"
   },
-  "mode": {
-    "title": "Mode",
-    "game_mode": {
-      "title": "Game Mode",
-      "single": "Single",
-      "multi": "Multi"
-    }
-  },
-  "navigation": {
-    "header": {
+  "ui": {
+    "navigation": {
       "home": "Home",
-      "about": "About Us",
-      "services": "Our Services",
+      "about": "About",
       "contact": "Contact"
     },
-    "footer": {
-      "copyright": "All rights reserved",
-      "privacy": "Privacy Policy",
-      "terms": "Terms of Service"
-    }
-  },
-  "content": {
-    "welcome": "Welcome to our platform",
-    "description": "We provide excellent services",
-    "features": {
-      "feature1": "Fast and reliable",
-      "feature2": "Easy to use",
-      "feature3": "24/7 support"
-    }
-  }
-}`,
-    placeholder: `请输入待翻译的复杂JSON格式数据，例如：
-{
-  "navigation": {
-    "header": {
-      "home": "Home",
-      "about": "About Us",
-      "services": "Our Services"
+    "buttons": {
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "save": "Save"
     },
-    "footer": {
-      "copyright": "All rights reserved",
-      "contact": "Contact Us"
+    "messages": {
+      "success": "Operation completed successfully",
+      "error": "An error occurred",
+      "warning": "Please check your input"
     }
   },
-  "content": {
-    "welcome": "Welcome to our platform",
-    "description": "We provide excellent services"
+  "features": [
+    "Text translation",
+    "File translation",
+    "Batch processing"
+  ]
+}`,
+    placeholder: i18n.t('examples.complexJSON.placeholder', `请输入复杂JSON格式数据，例如：
+{
+  "app": {
+    "name": "Translation Tool",
+    "description": "A powerful application"
+  },
+  "ui": {
+    "buttons": {
+      "submit": "Submit",
+      "cancel": "Cancel"
+    }
   }
-}`
+}`)
   },
 
   php: {
-    title: 'PHP数组翻译模式',
-    description: 'PHP数组模式适合翻译PHP语言中的数组格式文件，支持复杂的嵌套结构和各种PHP数组语法。',
+    title: i18n.t('examples.php.title', 'PHP数组翻译模式'),
+    description: i18n.t('examples.php.description', 'PHP数组模式适合翻译PHP语言中的数组格式文件，支持复杂的嵌套结构和各种PHP数组语法。'),
     example: `<?php
 return [
     'page_common' => [
@@ -141,7 +126,7 @@ return [
     'get_fail' => 'Get Failed'
 ];
 ?>`,
-    placeholder: `请输入PHP数组格式数据，例如：
+    placeholder: i18n.t('examples.php.placeholder', `请输入PHP数组格式数据，例如：
 <?php
 return [
     'key1' => 'value1',
@@ -150,8 +135,11 @@ return [
         'subkey' => 'subvalue'
     ]
 ];
-?>`
+?>`)
   }
-} as const;
+} as const);
 
-export type ExampleFormatType = keyof typeof EXAMPLE_FORMATS;
+// 为了向后兼容，保留静态的 EXAMPLE_FORMATS
+export const EXAMPLE_FORMATS = getExampleFormats();
+
+export type ExampleFormatType = keyof ReturnType<typeof getExampleFormats>;

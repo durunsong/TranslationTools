@@ -1,20 +1,18 @@
 /** @type {import('tailwindcss').Config} */
 
 export default {
-  darkMode: 'class', // 手动控制主题
+  darkMode: 'class',
   content: [
     './index.html',
     './src/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
-      // 扩展动画
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
         'slide-up': 'slideUp 0.3s ease-out',
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
-      // 扩展关键帧
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0' },
@@ -25,7 +23,6 @@ export default {
           '100%': { transform: 'translateY(0)', opacity: '1' },
         },
       },
-      // 扩展颜色
       colors: {
         primary: {
           50: '#f0f9ff',
