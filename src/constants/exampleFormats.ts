@@ -73,11 +73,11 @@ Welcome to our application.`)
       "warning": "Please check your input"
     }
   },
-  "features": [
-    "Text translation",
-    "File translation",
-    "Batch processing"
-  ]
+  "features": {
+    "text": "Text translation",
+    "file": "File translation",
+    "batch": "Batch processing"
+  }
 }`,
     placeholder: i18n.t('examples.complexJSON.placeholder', `请输入复杂JSON格式数据，例如：
 {

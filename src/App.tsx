@@ -54,8 +54,8 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <ConfigProvider theme={currentTheme}>
         <Layout className="min-h-screen bg-gray-100 dark:bg-gray-800">
-          <Layout.Content className="p-2">
-            <Space className="flex items-center justify-end">
+          <Layout.Content className="p-2 sm:p-4 max-w-full overflow-hidden">
+            <Space className="flex items-center justify-end flex-wrap w-full">
               <Dropdown menu={{ items: getMenuItems() }}>
                 <Space className="cursor-pointer">
                   <Text>{t('header.apiDocsAndCode')}</Text>

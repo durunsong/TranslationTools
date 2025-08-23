@@ -118,6 +118,9 @@ html.dark .responsive-space .ant-segmented-item-selected::before {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
   }
   
   .input-appid-key-title,
