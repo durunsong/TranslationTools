@@ -295,6 +295,6 @@ html.dark .responsive-space .ant-segmented-item-selected::before {
   }
   
   .responsive-space .ant-segmented .ant-segmented-item {
-    padding: 4px 20px !important;
+    padding: 4px 15px !important;
   }
 }

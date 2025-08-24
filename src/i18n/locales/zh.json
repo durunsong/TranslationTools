@@ -29,7 +29,7 @@
     "no": "否"
   },
   "header": {
-    "apiDocsAndCode": "🌏点击查看API文档和代码",
+    "apiDocsAndCode": "🌏API文档和代码",
     "inputCredentials": "🧭请输入百度翻译AppID和Key：",
     "selectMode": "🧭请选择你需要的模式：",
     "appIdPlaceholder": "App ID",
