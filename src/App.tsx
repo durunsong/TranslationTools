@@ -45,7 +45,7 @@ const App: React.FC = () => {
         itemColor: themeMode === "light" ? "#000" : "#fff",
         itemHoverColor: themeMode === "light" ? "#1890ff" : "#40a9ff",
         itemSelectedBg: themeMode === "light" ? "#eab308" : "#662626", // 恢复黄色作为默认
-        trackPadding: 6,
+        trackPadding: 3,
       },
     },
   }), [themeMode]);
@@ -54,7 +54,7 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <ConfigProvider theme={currentTheme}>
         <Layout className="min-h-screen bg-gray-100 dark:bg-gray-800">
-          <Layout.Content className="p-2 sm:p-4 max-w-full overflow-hidden">
+          <Layout.Content className="p-1 sm:p-4 max-w-full overflow-hidden">
             <Space className="flex items-center justify-end flex-wrap w-full">
               <Dropdown menu={{ items: getMenuItems() }}>
                 <Space className="cursor-pointer">
