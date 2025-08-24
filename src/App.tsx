@@ -45,7 +45,7 @@ const App: React.FC = () => {
         itemColor: themeMode === "light" ? "#000" : "#fff",
         itemHoverColor: themeMode === "light" ? "#1890ff" : "#40a9ff",
         itemSelectedBg: themeMode === "light" ? "#eab308" : "#662626", // 恢复黄色作为默认
-        trackPadding: 8,
+        trackPadding: 6,
       },
     },
   }), [themeMode]);
@@ -64,6 +64,7 @@ const App: React.FC = () => {
               </Dropdown>
               <LanguageSwitcher />
               <Segmented
+                size="small"
                 options={[
                   { value: "light", icon: <LightIcon /> },
                   { value: "dark", icon: <DarkIcon /> },
@@ -74,7 +75,7 @@ const App: React.FC = () => {
                     themeMode === "light" ? "#d9d9d9" : "#434343"
                   }`,
                 }}
-                className={`theme-switcher p-0.5 rounded-lg ${
+                className={`theme-switcher px-0.5 rounded-lg ${
                   themeMode === "light"
                     ? "bg-gray-100 text-black"
                     : "bg-gray-700 text-white"

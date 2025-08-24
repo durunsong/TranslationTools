@@ -28,7 +28,7 @@ const LanguageSwitcher: React.FC = () => {
       value={language}
       onChange={handleLanguageChange}
       style={{ 
-        width: 120,
+        width: 110,
       }}
       dropdownStyle={{
         backgroundColor: themeMode === "light" ? "#ffffff" : "#1f1f1f",
