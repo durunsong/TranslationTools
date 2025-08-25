@@ -86,6 +86,21 @@ pnpm install
 pnpm run dev
 ```
 
+### 🍉后端代理服务 Nodejs+express
+  后端地址： https://kilyicms-server.vercel.app
+```json
+接口：/api/translation/translate
+请求方式：post
+请求body参数：
+{
+    "query": "This is a translation program that can translate various languages.\nIt supports text translation in multiple formats.\nHello World!\nWelcome to our application.",
+    "from": "auto",
+    "to": "zh",
+    "appid": "xxxxxx",
+    "apiKey": "xxxxxxxx"
+}
+```
+
 ### 🥭 使用指南
 
 #### 🔧 快速开始
