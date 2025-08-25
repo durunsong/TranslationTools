@@ -49,6 +49,7 @@ TranslationTools is a modern multi-format translation tool built with React 18 +
 - **Simple JSON Translation**: Designed for flat-structure JSON, perfect for basic key-value pair translation
 - **Complex JSON Translation**: Support for multi-level nested JSON structures with intelligent parsing and reconstruction
 - **PHP Array Translation**: Native support for PHP array syntax with automatic format detection and structure integrity
+- **Vue-i18n Compatibility**: Support for Vue-i18n interpolation syntax, placeholders like `{count}`, `{name}` are intelligently preserved during translation
 
 ### 🎨 Intelligent User Interface
 - **Example Format Viewer**: Each mode provides detailed format examples and usage instructions
@@ -201,6 +202,25 @@ Request body parameters:
   }
   ```
 
+- **Vue-i18n Interpolation Syntax Support**:
+  ```json
+  // ✅ Supported interpolation syntax (placeholders preserved during translation)
+  {
+    "welcome": "Welcome to our website, {name}!",
+    "itemCount": "There are {count} items in total",
+    "userInfo": "User {username} registered on {date}",
+    "message": "This is a message sent to {receiver}"
+  }
+  
+  // After translation, placeholders are fully preserved:
+  {
+    "welcome": "欢迎来到我们的网站，{name}！",
+    "itemCount": "共有 {count} 个项目",
+    "userInfo": "用户 {username} 在 {date} 注册",
+    "message": "这是一条发送给 {receiver} 的消息"
+  }
+  ```
+
 - **PHP Array Format**:
   ```php
   <?php
@@ -222,6 +242,7 @@ Request body parameters:
 - **Format Errors**: Use "View Example Format" feature to understand correct format
 - **Translation Failures**: Check network connection and API key configuration
 - **Abnormal Results**: Try adjusting source language settings or segmented translation
+- **Vue-i18n Project Usage**: If your project uses Vue-i18n internationalization, you can directly paste language pack content for translation. The system will automatically recognize and preserve `{variable}` format placeholders, ensuring the translated language pack remains functional
 
 ## 💕 Thanks for the Star
 

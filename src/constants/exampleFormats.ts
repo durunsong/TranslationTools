@@ -12,12 +12,12 @@ export const getExampleFormats = () => ({
     title: i18n.t('examples.text.title', '文本翻译模式'),
     description: i18n.t('examples.text.description', '文本模式适合翻译普通的文字内容，支持多行文本和中英文混合翻译。'),
     example: `This is a translation program that can translate various languages.
-It supports text translation in multiple formats.
+It supports text translation in multiple formats to {toLang}.
 Hello World!
 Welcome to our application.`,
     placeholder: i18n.t('examples.text.placeholder', `请输入待翻译的文本，例如：
 This is a translation program that can translate various languages.
-It supports text translation in multiple formats.
+It supports text translation in multiple formats to {toLang}.
 Hello World!
 Welcome to our application.`)
   },
@@ -31,7 +31,7 @@ Welcome to our application.`)
   "register_button": "Register",
   "home_title": "Home Page",
   "about_us": "About Us",
-  "contact_info": "Contact Information",
+  "contact_info": "Contact Information to {toLang}",
   "search_placeholder": "Search...",
   "submit_button": "Submit",
   "cancel_button": "Cancel"
@@ -43,7 +43,7 @@ Welcome to our application.`)
   "register_button": "Register",
   "home_title": "Home Page",
   "about_us": "About Us",
-  "contact_info": "Contact Information"
+  "contact_info": "Contact Information to {toLang}"
 }`)
   },
 
@@ -54,13 +54,13 @@ Welcome to our application.`)
   "app": {
     "name": "Translation Tool",
     "version": "1.0.0",
-    "description": "A powerful translation application"
+    "description": "A powerful translation application to {toLang}"
   },
   "ui": {
     "navigation": {
       "home": "Home",
       "about": "About",
-      "contact": "Contact"
+      "contact": "Contact to {toLang}"
     },
     "buttons": {
       "submit": "Submit",
@@ -83,7 +83,7 @@ Welcome to our application.`)
 {
   "app": {
     "name": "Translation Tool",
-    "description": "A powerful application"
+    "description": "A powerful application to {toLang}"
   },
   "ui": {
     "buttons": {
@@ -101,7 +101,7 @@ Welcome to our application.`)
 return [
     'page_common' => [
         'login_welcome_title' => 'Welcome to',
-        'chosen_select_no_results_text' => 'No matching results',
+        'chosen_select_no_results_text' => 'No matching results to {toLang}',
         'error_text' => 'Abnormal error',
         'reminder_title' => 'Warm prompt',
         'operate_params_error' => 'Incorrect operation parameters',
