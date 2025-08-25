@@ -496,7 +496,7 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
       }
 
       message.success({
-        content: `成功翻译 ${translatedValues.length} 个文本项`,
+        content: t('translation.phpTranslateSuccess', { count: translatedValues.length }),
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
@@ -504,7 +504,7 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
 
     } catch (error: any) {
       message.error({
-        content: error.message || "翻译失败，请检查输入格式或网络连接",
+        content: error.message || t('translation.phpTranslateFailed'),
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
@@ -594,7 +594,6 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
         />
       </Space>
 
-      {/* 查看示例按钮 */}
       <div className="flex justify-between items-center mt-4 mb-2">
         <span className="text-sm text-gray-600 dark:text-gray-400">
           {t('translation.dontKnowHowToInput')}
@@ -610,7 +609,6 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
         </Button>
       </div>
 
-      {/* 示例格式弹窗 */}
       <ExampleFormatModal
         open={isExampleModalOpen}
         onCancel={() => setIsExampleModalOpen(false)}
@@ -659,7 +657,6 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
         </Button>
       </Space>
       
-             {/* 加载提示 */}
        {isLoading && !transResult && (
          <div className="mt-4 text-center">
            <div className="text-lg">{t('translation.translatingPHP', '正在为你翻译PHP数组模式请稍等...')}</div>
@@ -677,7 +674,7 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
               type="text"
               icon={<CopyOutlined />}
               onClick={handleCopyResult}
-              className="flex items-center"
+              className="flex items-center text-blue-500 hover:text-blue-600"
               size="small"
             >
               {t('translation.copyResult')}

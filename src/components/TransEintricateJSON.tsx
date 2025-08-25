@@ -149,12 +149,21 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
       const translatedTextArray = await translateTexts(textToTranslate);
       const translatedData = applyTranslations(data, translatedTextArray);
       setTransResult(translatedData);
+      
+      // 显示翻译成功提示
+      message.success({
+        content: t('translation.complexJSONTranslateSuccess', { count: translatedTextArray.length }),
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
+      
       if (isDownload) {
         downloadTranslation(translatedData, suffix, exportType);
       }
     } catch (error) {
       message.error({
-        content: "翻译失败, 请检查网络连接或API密钥是否正确",
+        content: t('translation.complexJSONTranslateFailed'),
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
@@ -289,7 +298,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
       return translatedValues;
     } catch (error) {
       message.error({
-        content: "翻译失败, 请检查网络连接或API密钥是否正确",
+        content: t('translation.complexJSONTranslateFailed'),
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
@@ -352,7 +361,6 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
         />
       </Space>
 
-      {/* 查看示例按钮 */}
       <div className="flex justify-between items-center mt-4 mb-2">
         <span className="text-sm text-gray-600 dark:text-gray-400">
           {t('translation.dontKnowHowToInput')}
@@ -368,7 +376,6 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
         </Button>
       </div>
 
-      {/* 示例格式弹窗 */}
       <ExampleFormatModal
         open={isExampleModalOpen}
         onCancel={() => setIsExampleModalOpen(false)}
@@ -430,7 +437,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
               type="text"
               icon={<CopyOutlined />}
               onClick={handleCopyResult}
-              className="flex items-center"
+              className="flex items-center text-blue-500 hover:text-blue-600"
               size="small"
             >
               {t('translation.copyResult')}

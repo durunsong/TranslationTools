@@ -180,19 +180,26 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
       }, {} as Record<string, string>);
 
       setTransResult(translation);
+      
+      message.success({
+        content: t('translation.simpleJSONTranslateSuccess', { count: translatedValues.length }),
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
+      
       if (isDownload) {
         downloadTranslation(translation, suffix, exportType);
       }
     } catch (e) {
       message.error({
-        content: "翻译失败，请检查网络连接或稍后再试",
+        content: t('translation.simpleJSONTranslateFailed'),
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
       });
       console.error(e);
     } finally {
-      // 无论成功还是失败，都结束加载状态
       stopLoading();
     }
   };
@@ -222,7 +229,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
         throw new Error('翻译结果为空');
       }
 
-      console.log(data); // 打印翻译结果
+      console.log(data);
       return { trans_result: data.data.trans_result };
     } catch (error: unknown) {
       console.error('翻译请求失败:', error);
@@ -293,7 +300,6 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
         />
       </Space>
 
-      {/* 查看示例按钮 */}
       <div className="flex justify-between items-center mt-4 mb-2">
         <span className="text-sm text-gray-600 dark:text-gray-400">
           {t('translation.dontKnowHowToInput')}
@@ -309,7 +315,6 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
         </Button>
       </div>
 
-      {/* 示例格式弹窗 */}
       <ExampleFormatModal
         open={isExampleModalOpen}
         onCancel={() => setIsExampleModalOpen(false)}
@@ -354,7 +359,6 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
         </Button>
       </Space>
       
-             {/* 如果正在加载中且没有结果，显示加载提示 */}
        {isLoading && !transResult && (
          <div className="mt-4 text-center">
            <div className="text-lg">{t('translation.translatingSimpleJSON', '正在为你翻译简单JSON模式请稍等...')}</div>
@@ -371,7 +375,7 @@ const LanguageSelectOptions: React.FC<TextTranslationProps> = ({
               type="text"
               icon={<CopyOutlined />}
               onClick={handleCopyResult}
-              className="flex items-center"
+              className="flex items-center text-blue-500 hover:text-blue-600"
               size="small"
             >
               {t('translation.copyResult')}

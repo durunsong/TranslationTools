@@ -44,7 +44,7 @@ const App: React.FC = () => {
       Segmented: {
         itemColor: themeMode === "light" ? "#000" : "#fff",
         itemHoverColor: themeMode === "light" ? "#1890ff" : "#40a9ff",
-        itemSelectedBg: themeMode === "light" ? "#eab308" : "#662626", // 恢复黄色作为默认
+        itemSelectedBg: themeMode === "light" ? "#eab308" : "#662626",
         trackPadding: 3,
       },
     },

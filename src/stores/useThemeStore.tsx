@@ -2,11 +2,11 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { ThemeStore } from "@/types/stores";
 
-// 定义状态和方法
+// 状态和方法
 export const useThemeStore = create<ThemeStore>()(
   persist(
     (set) => ({
-      themeMode: "light", // 默认主题模式
+      themeMode: "light",
       setThemeMode: (mode) => set({ themeMode: mode }),
     }),
     {

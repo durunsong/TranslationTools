@@ -98,7 +98,6 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
       className="example-format-modal"
     >
       <div className="space-y-4">
-        {/* 描述 */}
         <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border-l-4 border-blue-400">
           <div className="flex items-start gap-2">
             <span className="text-blue-500 mt-0.5">🌐</span>
@@ -106,7 +105,6 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
           </div>
         </div>
 
-        {/* 示例标题 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-gray-600 dark:text-gray-400">🖨</span>
@@ -125,7 +123,6 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
           </Button>
         </div>
 
-        {/* 示例代码 */}
         <div className="relative">
           <Paragraph
             copyable={{
@@ -148,7 +145,6 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
           </Paragraph>
         </div>
 
-        {/* 使用提示 */}
         <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border-l-4 border-green-400">
           <div className="flex items-start gap-2">
             <span className="text-green-500 mt-0.5">💡</span>

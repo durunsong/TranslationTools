@@ -103,8 +103,15 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
         apiKey: apiKey!,
       });
       setTransResult(translatedText);
+      
+      message.success({
+        content: t('translation.textTranslateSuccess'),
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : t('translation.translateError');
+      const errorMessage = error instanceof Error ? error.message : t('translation.textTranslateFailed');
       message.error({
         content: errorMessage,
         className: document.documentElement.classList.contains("dark")
@@ -137,7 +144,6 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
         />
       </Space>
 
-      {/* 查看示例按钮 */}
       <div className="flex justify-between items-center mt-4 mb-2">
         <span className="text-sm text-gray-600 dark:text-gray-400">
           {t('translation.dontKnowHowToInput', '💡 不知道如何输入？')}
@@ -153,7 +159,6 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
         </Button>
       </div>
 
-      {/* 示例格式弹窗 */}
       <ExampleFormatModal
         open={isExampleModalOpen}
         onCancel={() => setIsExampleModalOpen(false)}
@@ -196,7 +201,7 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
               type="text"
               icon={<CopyOutlined />}
               onClick={handleCopyResult}
-              className="flex items-center"
+              className="flex items-center text-blue-500 hover:text-blue-600"
               size="small"
             >
               {t('translation.copyResult', '复制翻译结果')}

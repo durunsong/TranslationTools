@@ -6,7 +6,6 @@
   margin-top: 10px;
 }
 
-/* 输入框和按钮布局 */
 .input-appid-key .ant-space {
   display: flex;
   align-items: center;
@@ -37,13 +36,12 @@
   padding: 4px 12px !important;
 }
 
-/* 模式选择器样式 */
 .responsive-space .ant-segmented {
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
   border: 1px solid rgba(148, 163, 184, 0.2) !important;
   border-radius: 16px !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
-  padding: 2px !important;
+  padding: 1px !important;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
   backdrop-filter: blur(10px) !important;
   width: auto !important;
@@ -52,7 +50,7 @@
 
 .responsive-space .ant-segmented .ant-segmented-item {
   min-width: auto !important;
-  padding: 6px 10px !important;
+  padding: 1px 10px !important;
   flex: 0 0 auto !important;
 }
 
@@ -295,6 +293,6 @@ html.dark .responsive-space .ant-segmented-item-selected::before {
   }
   
   .responsive-space .ant-segmented .ant-segmented-item {
-    padding: 4px 15px !important;
+    padding: 1px 15px !important;
   }
 }

@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { LanguageStore } from "@/types/stores";
 import i18n from "@/i18n";
 
-// 定义语言状态和方法
+// 语言状态和方法
 export const useLanguageStore = create<LanguageStore>()(
   persist(
     (set) => ({

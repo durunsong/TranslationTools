@@ -33,7 +33,7 @@ const ResolveComponent: React.FC = () => {
 
   const handleSaveCredentials = () => {
     if (localAppid && localKey) {
-      // 使用 Zustand 更新状态
+      // Zustand 更新状态
       setCredentials(localAppid, localKey);
       message.success({
         content: t('translation.credentialsSaved'),

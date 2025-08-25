@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { CredentialsStore } from "@/types/stores";
 
-// 定义状态和方法
+// 状态和方法
 export const useCredentialsStore = create<CredentialsStore>()(
   persist(
     (set) => ({

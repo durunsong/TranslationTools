@@ -231,7 +231,6 @@ export function logPageLoadPerformance(): void {
             });
           }
 
-          // Core Web Vitals (如果支持)
           if ('getEntriesByType' in performance) {
             const paintEntries = performance.getEntriesByType('paint');
             paintEntries.forEach((entry) => {
