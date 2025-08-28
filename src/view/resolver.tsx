@@ -19,16 +19,11 @@ const { Title } = Typography;
 
 const ResolveComponent: React.FC = () => {
   const [mode, setMode] = useState("textMode");
-  const { appid, apiKey, setCredentials, initializeDefaults } = useCredentialsStore();
+  const { appid, apiKey, setCredentials } = useCredentialsStore();
   const [localAppid, setLocalAppid] = useState<string>(appid || "");
   const [localKey, setLocalKey] = useState<string>(apiKey || "");
   const { message } = App.useApp();
   const { t } = useTranslation();
-
-  useEffect(() => {
-    // 在组件挂载时初始化默认凭据
-    initializeDefaults();
-  }, [initializeDefaults]);
 
   useEffect(() => {
     // 同步store中的凭据到本地状态
