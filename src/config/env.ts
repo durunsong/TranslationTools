@@ -23,6 +23,12 @@ interface AppConfig {
     maxRetries: number;
   };
   
+  // 默认凭据配置
+  defaultCredentials: {
+    appid: string;
+    apiKey: string;
+  };
+  
   // 功能开关
   features: {
     enablePerformanceMonitoring: boolean;
@@ -53,6 +59,11 @@ export const config: AppConfig = {
     proxyApiUrl: import.meta.env.VITE_PROXY_API_URL || 'http://localhost:4500/api/translation/translate',
     timeout: 10000, // 10秒
     maxRetries: 3,
+  },
+  
+  defaultCredentials: {
+    appid: import.meta.env.VITE_DEFAULT_APPID || '',
+    apiKey: import.meta.env.VITE_DEFAULT_API_KEY || '',
   },
   
   features: {
@@ -92,23 +103,23 @@ export const isProd = config.isProduction;
  * 日志工具
  */
 export const logger = {
-  debug: (...args: any[]) => {
+  debug: (...args: unknown[]) => {
     if (config.features.enableDebugMode) {
       console.log('🐛 [DEBUG]', ...args);
     }
   },
   
-  info: (...args: any[]) => {
+  info: (...args: unknown[]) => {
     if (config.features.enableDebugMode) {
       console.info('ℹ️ [INFO]', ...args);
     }
   },
   
-  warn: (...args: any[]) => {
+  warn: (...args: unknown[]) => {
     console.warn('⚠️ [WARN]', ...args);
   },
   
-  error: (...args: any[]) => {
+  error: (...args: unknown[]) => {
     console.error('❌ [ERROR]', ...args);
   },
 };

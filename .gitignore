@@ -25,3 +25,7 @@ dist-ssr
 
 # TypeScript build cache
 *.tsbuildinfo
+
+# 环境变量忽略env文件
+.env
+
