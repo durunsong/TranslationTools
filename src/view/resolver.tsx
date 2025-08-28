@@ -13,28 +13,27 @@ import TranslateSimplerJSON from "@/components/TranslateSimplerJSON";
 import TransEintricateJSON from "@/components/TransEintricateJSON";
 import TranslatePHP from "@/components/TranslatePHP";
 import { useCredentialsStore } from "@/stores/useCredentialsStore";
-import { config } from "@/config/env";
 import "./css/resolver.css";
 
 const { Title } = Typography;
 
 const ResolveComponent: React.FC = () => {
   const [mode, setMode] = useState("textMode");
-  const { appid, apiKey, setCredentials } = useCredentialsStore();
-  // 优先使用存储的凭据，如果没有则使用环境变量的默认值
-  const [localAppid, setLocalAppid] = useState<string>(
-    appid || config.defaultCredentials.appid
-  );
-  const [localKey, setLocalKey] = useState<string>(
-    apiKey || config.defaultCredentials.apiKey
-  );
+  const { appid, apiKey, setCredentials, initializeDefaults } = useCredentialsStore();
+  const [localAppid, setLocalAppid] = useState<string>(appid || "");
+  const [localKey, setLocalKey] = useState<string>(apiKey || "");
   const { message } = App.useApp();
   const { t } = useTranslation();
 
   useEffect(() => {
-    // 优先使用存储的凭据，如果没有则使用环境变量的默认值
-    setLocalAppid(appid || config.defaultCredentials.appid);
-    setLocalKey(apiKey || config.defaultCredentials.apiKey);
+    // 在组件挂载时初始化默认凭据
+    initializeDefaults();
+  }, [initializeDefaults]);
+
+  useEffect(() => {
+    // 同步store中的凭据到本地状态
+    setLocalAppid(appid || "");
+    setLocalKey(apiKey || "");
   }, [appid, apiKey]);
 
   const handleSaveCredentials = () => {

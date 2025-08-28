@@ -3,6 +3,7 @@ export interface CredentialsStore {
   appid: string | undefined;
   apiKey: string | undefined;
   setCredentials: (appid: string, apiKey: string) => void;
+  initializeDefaults: () => void;
 }
 
 // store中主题模式字段
