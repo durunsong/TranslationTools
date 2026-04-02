@@ -99,7 +99,8 @@
     "copyExample": "复制案例格式",
     "exampleCopied": "案例格式已复制到剪贴板",
     "usageTips": "使用提示",
-    "usageDescription": "您可以直接复制上面的示例代码到输入框中进行测试，或者参考格式编写您自己的内容。"
+    "usageDescription": "您可以直接复制上面的示例代码到输入框中进行测试，或者参考格式编写您自己的内容。",
+    "keyboardHint": "↵ Enter 提交翻译 · Shift + Enter 换行"
   },
   "languages": {
     "auto": "自动检测",

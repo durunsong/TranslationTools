@@ -172,12 +172,26 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
         allowClear
         value={textData}
         onChange={(e) => setTextData(e.target.value)}
+        onKeyDown={(e) => {
+          // Enter 提交，Shift+Enter 换行（默认行为）
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if (!isLoading) {
+              handleTranslate();
+            }
+          }
+        }}
         placeholder={EXAMPLE_FORMATS.text.placeholder}
         autoSize={{ minRows: 6, maxRows: 10 }}
         className="mt-4"
         showCount
         maxLength={2000}
       />
+      <div className="flex justify-start mt-1">
+        <span className="text-xs text-gray-400 dark:text-gray-500 select-none">
+          {t('translation.keyboardHint', '↵ Enter 提交翻译 · Shift + Enter 换行')}
+        </span>
+      </div>
       <Button 
         type="primary" 
         onClick={handleTranslate} 

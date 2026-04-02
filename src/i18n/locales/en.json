@@ -99,7 +99,8 @@
     "copyExample": "Copy Example",
     "exampleCopied": "Example copied",
     "usageTips": "Usage Tips",
-    "usageDescription": "Copy the example above to test, or use it as a reference for your own content."
+    "usageDescription": "Copy the example above to test, or use it as a reference for your own content.",
+    "keyboardHint": "↵ Enter to translate · Shift + Enter for newline"
   },
   "languages": {
     "auto": "Auto Detect",
