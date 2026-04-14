@@ -1,10 +1,13 @@
-import axios from 'axios';
-import { config, logger } from '@/config/env';
-import PerformanceMonitor from '@/utils/performance';
+import axios from "axios";
+import { config, logger } from "@/config/env";
+import PerformanceMonitor from "@/utils/performance";
 
-/**
- * 代理服务器响应接口
- */
+const createErrorWithCause = (message: string, cause: unknown) => {
+  const error = new Error(message) as Error & { cause?: unknown };
+  error.cause = cause;
+  return error;
+};
+
 export interface TranslationProxyResponse {
   success: boolean;
   data?: {
@@ -22,9 +25,6 @@ export interface TranslationProxyResponse {
   };
 }
 
-/**
- * 翻译请求参数接口
- */
 export interface TranslationParams {
   query: string;
   from: string;
@@ -33,19 +33,12 @@ export interface TranslationParams {
   apiKey: string;
 }
 
-/**
- * 翻译服务类
- * 封装翻译代理服务调用逻辑
- */
 export class TranslationService {
   private static readonly PROXY_API_URL = config.api.proxyApiUrl;
-  
-  /**
-   * 构建请求数据
-   * @param params 翻译参数
-   * @returns 请求数据对象
-   */
-  private static buildRequestData(params: TranslationParams): Record<string, string> {
+
+  private static buildRequestData(
+    params: TranslationParams
+  ): Record<string, string> {
     return {
       query: params.query,
       from: params.from,
@@ -55,93 +48,101 @@ export class TranslationService {
     };
   }
 
-  /**
-   * 执行翻译请求
-   * @param params 翻译参数
-   * @returns Promise<string> 翻译结果
-   */
   static async translate(params: TranslationParams): Promise<string> {
-    return PerformanceMonitor.measure('translation-request', async () => {
+    return PerformanceMonitor.measure("translation-request", async () => {
       try {
         const requestData = this.buildRequestData(params);
-        
-        logger.debug('发起翻译请求:', { from: params.from, to: params.to, queryLength: params.query.length });
-        
+
+        logger.debug("Sending translation request:", {
+          from: params.from,
+          to: params.to,
+          queryLength: params.query.length,
+        });
+
         const response = await axios.post<TranslationProxyResponse>(
           this.PROXY_API_URL,
           requestData,
           {
             timeout: config.api.timeout,
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
           }
         );
 
         const data = response.data;
 
-        // 检查代理服务返回的错误
         if (!data.success || data.error) {
-          const errorMessage = data.error?.message || '翻译请求失败';
-          logger.error('翻译代理服务错误:', { 
-            code: data.error?.code, 
-            message: errorMessage 
+          const errorMessage = data.error?.message ?? "Translation request failed";
+          logger.error("Translation proxy error:", {
+            code: data.error?.code,
+            message: errorMessage,
           });
           throw new Error(errorMessage);
         }
 
-        // 检查翻译结果
         if (!data.data?.result) {
-          logger.error('翻译结果为空:', data);
-          throw new Error('翻译结果为空');
+          logger.error("Translation result is empty:", data);
+          throw new Error("Translation result is empty");
         }
 
-        logger.debug('翻译成功:', { resultLength: data.data.result.length });
+        logger.debug("Translation completed:", {
+          resultLength: data.data.result.length,
+        });
         return data.data.result;
+      } catch (error: unknown) {
+        logger.error("Translation request failed:", error);
 
-      } catch (error: any) {
-        logger.error('翻译请求失败:', error);
-        
-        // 处理不同类型的错误
-        if (error.code === 'ECONNABORTED') {
-          throw new Error('请求超时，请稍后重试');
+        if (axios.isAxiosError(error)) {
+          if (error.code === "ECONNABORTED") {
+            throw createErrorWithCause(
+              "Request timed out, please try again later",
+              error
+            );
+          }
+
+          if (error.response?.status === 429) {
+            throw createErrorWithCause(
+              "Too many requests, please try again later",
+              error
+            );
+          }
+
+          const apiMessage = error.response?.data?.error?.message;
+          if (typeof apiMessage === "string" && apiMessage.trim()) {
+            throw createErrorWithCause(apiMessage, error);
+          }
         }
-        
-        if (error.response?.status === 429) {
-          throw new Error('请求过于频繁，请稍后重试');
-        }
-        
-        if (error.response?.data?.error?.message) {
-          throw new Error(error.response.data.error.message);
-        }
-        
-        throw new Error(error.message || '网络请求失败');
+
+        const message =
+          error instanceof Error && error.message
+            ? error.message
+            : "Network request failed";
+        throw createErrorWithCause(message, error);
       }
     });
   }
 
-
-
-  /**
-   * 验证翻译参数
-   * @param params 翻译参数
-   * @returns 验证结果
-   */
-  static validateParams(params: Partial<TranslationParams>): { isValid: boolean; message?: string } {
+  static validateParams(
+    params: Partial<TranslationParams>
+  ): { isValid: boolean; message?: string } {
     if (!params.appid || !params.apiKey) {
-      return { isValid: false, message: '请先配置 APP ID 和 API Key' };
+      return { isValid: false, message: "Please configure App ID and API Key first" };
     }
 
     if (!params.query || !params.query.trim()) {
-      return { isValid: false, message: '请输入需要翻译的内容' };
+      return { isValid: false, message: "Please enter text to translate" };
     }
 
     if (params.query.length > config.limits.maxTextLength) {
-      return { isValid: false, message: `翻译内容过长，请控制在${config.limits.maxTextLength}字符以内` };
+      return {
+        isValid: false,
+        message: `Please keep the text within ${config.limits.maxTextLength} characters`,
+      };
     }
 
     if (!params.from || !params.to) {
-      return { isValid: false, message: '请选择源语言和目标语言' };
+      return { isValid: false, message: "Please select both source and target languages" };
     }
 
     return { isValid: true };

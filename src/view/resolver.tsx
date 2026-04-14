@@ -1,12 +1,5 @@
-import React, { useState, useEffect } from "react";
-import {
-  Typography,
-  Segmented,
-  Space,
-  Input,
-  Button,
-  App,
-} from "antd";
+import React, { useState } from "react";
+import { Typography, Segmented, Space, Input, Button, App } from "antd";
 import { useTranslation } from "react-i18next";
 import TranslateText from "@/components/TranslateText";
 import TranslateSimplerJSON from "@/components/TranslateSimplerJSON";
@@ -17,38 +10,77 @@ import "./css/resolver.css";
 
 const { Title } = Typography;
 
+type TranslationMode =
+  | "textMode"
+  | "simpleJSONMode"
+  | "complexJSONMode"
+  | "phpMode";
+
+interface CredentialsSectionProps {
+  initialAppid: string;
+  initialApiKey: string;
+  onSave: (appid: string, apiKey: string) => void;
+}
+
+const CredentialsSection: React.FC<CredentialsSectionProps> = ({
+  initialAppid,
+  initialApiKey,
+  onSave,
+}) => {
+  const [localAppid, setLocalAppid] = useState(initialAppid);
+  const [localApiKey, setLocalApiKey] = useState(initialApiKey);
+  const { t } = useTranslation();
+
+  return (
+    <Space className="input-appid-key">
+      <Title level={5} className="input-appid-key-title">
+        {t("header.inputCredentials")}
+      </Title>
+      <Space className="flex flex-col">
+        <Input
+          placeholder={t("header.appIdPlaceholder")}
+          allowClear
+          value={localAppid}
+          onChange={(event) => setLocalAppid(event.target.value)}
+        />
+        <Input
+          placeholder={t("header.keyPlaceholder")}
+          allowClear
+          value={localApiKey}
+          onChange={(event) => setLocalApiKey(event.target.value)}
+        />
+      </Space>
+      <Button type="primary" onClick={() => onSave(localAppid, localApiKey)}>
+        {t("common.save")}
+      </Button>
+    </Space>
+  );
+};
+
 const ResolveComponent: React.FC = () => {
-  const [mode, setMode] = useState("textMode");
+  const [mode, setMode] = useState<TranslationMode>("textMode");
   const { appid, apiKey, setCredentials } = useCredentialsStore();
-  const [localAppid, setLocalAppid] = useState<string>(appid || "");
-  const [localKey, setLocalKey] = useState<string>(apiKey || "");
   const { message } = App.useApp();
   const { t } = useTranslation();
 
-  useEffect(() => {
-    // 同步store中的凭据到本地状态
-    setLocalAppid(appid || "");
-    setLocalKey(apiKey || "");
-  }, [appid, apiKey]);
-
-  const handleSaveCredentials = () => {
-    if (localAppid && localKey) {
-      // Zustand 更新状态
-      setCredentials(localAppid, localKey);
+  const handleSaveCredentials = (nextAppid: string, nextApiKey: string) => {
+    if (nextAppid && nextApiKey) {
+      setCredentials(nextAppid, nextApiKey);
       message.success({
-        content: t('translation.credentialsSaved'),
+        content: t("translation.credentialsSaved"),
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
       });
-    } else {
-      message.error({
-        content: t('translation.pleaseInputCredentials'),
-        className: document.documentElement.classList.contains("dark")
-          ? "message-dark"
-          : "message-light",
-      });
+      return;
     }
+
+    message.error({
+      content: t("translation.pleaseInputCredentials"),
+      className: document.documentElement.classList.contains("dark")
+        ? "message-dark"
+        : "message-light",
+    });
   };
 
   const renderComponent = () => {
@@ -66,63 +98,27 @@ const ResolveComponent: React.FC = () => {
     }
   };
 
-
-
-  const handleModeChange = (value:string) => {
-    requestAnimationFrame(() => {
-      setMode(value);
-    });
-  };
-
   return (
     <div className="flex flex-col">
-      <Space className="input-appid-key">
-        <Title level={5} className="input-appid-key-title">
-          {t('header.inputCredentials')}
-        </Title>
-        <Space className="flex flex-col">
-          <Input
-            placeholder={t('header.appIdPlaceholder')}
-            allowClear
-            value={localAppid}
-            onChange={(e) => setLocalAppid(e.target.value)}
-          />
-          <Input
-            placeholder={t('header.keyPlaceholder')}
-            allowClear
-            value={localKey}
-            onChange={(e) => setLocalKey(e.target.value)}
-          />
-        </Space>
-          <Button type="primary" onClick={handleSaveCredentials}>
-            {t('common.save')}
-          </Button>
-      </Space>
+      <CredentialsSection
+        key={`${appid ?? ""}:${apiKey ?? ""}`}
+        initialAppid={appid ?? ""}
+        initialApiKey={apiKey ?? ""}
+        onSave={handleSaveCredentials}
+      />
       <Space className="responsive-space">
         <Title level={5} className="responsive-space-title">
-          {t('header.selectMode')}
+          {t("header.selectMode")}
         </Title>
         <Segmented
           size="large"
-          defaultValue={mode}
-          onChange={handleModeChange}
+          value={mode}
+          onChange={(value) => setMode(value as TranslationMode)}
           options={[
-            {
-              label: t('modes.textMode'),
-              value: "textMode",
-            },
-            {
-              label: t('modes.simpleJSONMode'),
-              value: "simpleJSONMode",
-            },
-            {
-              label: t('modes.complexJSONMode'),
-              value: "complexJSONMode",
-            },
-            {
-              label: t('modes.phpMode'),
-              value: "phpMode",
-            },
+            { label: t("modes.textMode"), value: "textMode" },
+            { label: t("modes.simpleJSONMode"), value: "simpleJSONMode" },
+            { label: t("modes.complexJSONMode"), value: "complexJSONMode" },
+            { label: t("modes.phpMode"), value: "phpMode" },
           ]}
         />
       </Space>

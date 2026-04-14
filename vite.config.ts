@@ -1,87 +1,83 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
-import tailwindcss from "tailwindcss";
-import autoprefixer from "autoprefixer";
-import path from 'path';
+import { fileURLToPath, URL } from "node:url";
 
 export default defineConfig({
-  plugins: [
-    react()
-  ],
+  plugins: [react()],
   server: {
     port: 8000,
     host: true,
     open: false,
     cors: true,
-    /** 端口被占用时，是否直接退出 */
     strictPort: false,
     hmr: true,
     proxy: {
       "/api": {
         target: "http://api.fanyi.baidu.com",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
+        rewrite: (requestPath) => requestPath.replace(/^\/api/, ""),
       },
     },
   },
   build: {
-    /** 单个 chunk 文件的大小超过 2048KB 时发出警告 */
     chunkSizeWarningLimit: 2048,
-    /** 禁用 gzip 压缩大小报告 */
     reportCompressedSize: false,
-    /** 打包后静态资源目录 */
     assetsDir: "static",
-    /** 启用代码分割优化 */
     rollupOptions: {
       output: {
-        // 手动分割代码块
-        manualChunks: {
-          // 将React相关库打包到一个chunk
-          'react-vendor': ['react', 'react-dom'],
-          // 将Ant Design打包到一个chunk
-          'antd-vendor': ['antd', '@ant-design/icons'],
-          // 将工具库打包到一个chunk
-          'utils-vendor': ['zustand', 'axios', 'md5', 'classnames']
+        manualChunks(id) {
+          if (!id.includes("node_modules")) {
+            return;
+          }
+
+          if (id.includes("react") || id.includes("scheduler")) {
+            return "react-vendor";
+          }
+
+          if (id.includes("antd") || id.includes("@ant-design/icons")) {
+            return "antd-vendor";
+          }
+
+          if (
+            id.includes("zustand") ||
+            id.includes("axios") ||
+            id.includes("md5") ||
+            id.includes("classnames")
+          ) {
+            return "utils-vendor";
+          }
         },
-        // 为chunk文件命名
-        chunkFileNames: 'static/js/[name]-[hash].js',
-        entryFileNames: 'static/js/[name]-[hash].js',
-        assetFileNames: 'static/[ext]/[name]-[hash].[ext]'
-      }
+        chunkFileNames: "static/js/[name]-[hash].js",
+        entryFileNames: "static/js/[name]-[hash].js",
+        assetFileNames: "static/[ext]/[name]-[hash].[ext]",
+      },
     },
-    /** 启用压缩 */
-    minify: 'terser',
+    minify: "terser",
     terserOptions: {
       compress: {
-        // 生产环境移除console
         drop_console: true,
         drop_debugger: true,
       },
     },
   },
   css: {
-    postcss: {
-      plugins: [tailwindcss, autoprefixer],
-    },
-    // CSS代码分割
     devSourcemap: true,
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
-  // 预构建优化
   optimizeDeps: {
     include: [
-      'react',
-      'react-dom',
-      'antd',
-      '@ant-design/icons',
-      'zustand',
-      'axios',
-      'md5',
-      'classnames'
+      "react",
+      "react-dom",
+      "antd",
+      "@ant-design/icons",
+      "zustand",
+      "axios",
+      "md5",
+      "classnames",
     ],
   },
 });

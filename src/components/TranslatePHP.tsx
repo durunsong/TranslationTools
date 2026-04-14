@@ -15,303 +15,326 @@ import { shouldSubmitOnEnter } from "@/utils/submitOnEnter";
 const { TextArea } = Input;
 const { Paragraph, Title } = Typography;
 
-/**
- * PHP数组解析器
- */
+type PHPScalarValue = string | number | boolean;
+type PHPArrayValue = PHPScalarValue | PHPArrayObject;
+interface PHPArrayObject {
+  [key: string]: PHPArrayValue;
+}
+
+interface PHPParseResult {
+  keys: string[];
+  values: string[];
+  structure: {
+    parsed: PHPArrayObject;
+  };
+}
+
+interface TranslationChunkApiResponse {
+  success: boolean;
+  data?: {
+    trans_result?: Array<{
+      src: string;
+      dst: string;
+    }>;
+  };
+  error?: {
+    message?: string;
+  };
+}
+
+const createErrorWithCause = (message: string, cause: unknown) => {
+  const error = new Error(message) as Error & { cause?: unknown };
+  error.cause = cause;
+  return error;
+};
+
 class PHPArrayParser {
-  /**
-   * 解析PHP数组字符串，提取需要翻译的值
-   * @param phpContent PHP数组内容
-   * @returns 解析结果
-   */
-  static parsePHPArray(phpContent: string): {
-    keys: string[];
-    values: string[];
-    structure: any;
-  } {
+  static parsePHPArray(phpContent: string): PHPParseResult {
     const keys: string[] = [];
     const values: string[] = [];
-    const structure: any = {};
+    const structure: PHPParseResult["structure"] = { parsed: {} };
 
-    // 移除PHP标签和return语句
-    let content = phpContent
-      .replace(/<\?php/g, '')
-      .replace(/\?>/g, '')
-      .replace(/return\s+/g, '')
-      .replace(/;?\s*$/, '')
+    const content = phpContent
+      .replace(/<\?php/g, "")
+      .replace(/\?>/g, "")
+      .replace(/return\s+/g, "")
+      .replace(/;?\s*$/, "")
       .trim();
 
-    // 递归解析数组结构
-    const parseLevel = (obj: any, prefix = '') => {
-      for (const [key, value] of Object.entries(obj)) {
+    const collectValues = (value: PHPArrayObject, prefix = "") => {
+      Object.entries(value).forEach(([key, childValue]) => {
         const fullKey = prefix ? `${prefix}.${key}` : key;
-        
-        if (typeof value === 'object' && value !== null) {
-          parseLevel(value, fullKey);
-        } else if (typeof value === 'string') {
+        if (typeof childValue === "string") {
           keys.push(fullKey);
-          values.push(value);
+          values.push(childValue);
+          return;
         }
-      }
+
+        if (childValue && typeof childValue === "object") {
+          collectValues(childValue, fullKey);
+        }
+      });
     };
 
     try {
-      // 使用正则表达式解析PHP数组语法
       const parsed = this.parsePhpArrayString(content);
       structure.parsed = parsed;
-      parseLevel(parsed);
+      collectValues(parsed);
     } catch (error) {
-      console.error('PHP数组解析失败:', error);
-      throw new Error('PHP数组格式不正确，请检查语法');
+      console.error("PHP array parsing failed:", error);
+      throw createErrorWithCause("Invalid PHP array format", error);
     }
 
     return { keys, values, structure };
   }
 
-  /**
-   * 解析PHP数组字符串为JavaScript对象
-   * @param phpArrayString PHP数组字符串
-   * @returns JavaScript对象
-   */
-  private static parsePhpArrayString(phpArrayString: string): any {
+  private static parsePhpArrayString(phpArrayString: string): PHPArrayObject {
     try {
-      // 预处理PHP代码
       let content = phpArrayString
-        .replace(/<\?php/g, '')
-        .replace(/\?>/g, '')
-        .replace(/return\s+/g, '')
-        .replace(/;?\s*$/, '')
+        .replace(/<\?php/g, "")
+        .replace(/\?>/g, "")
+        .replace(/return\s+/g, "")
+        .replace(/;?\s*$/, "")
         .trim();
 
-      // 移除外层的方括号
-      if (content.startsWith('[') && content.endsWith(']')) {
+      if (content.startsWith("[") && content.endsWith("]")) {
         content = content.slice(1, -1);
       }
 
       return this.parseArrayContent(content);
     } catch (error) {
-      console.error('PHP解析错误:', error);
-      throw new Error('PHP数组格式解析失败，请检查语法是否正确');
+      console.error("PHP parsing error:", error);
+      throw createErrorWithCause("Unable to parse the PHP array syntax", error);
     }
   }
 
-  /**
-   * 递归解析数组内容
-   * @param content 数组内容字符串
-   * @returns 解析后的对象
-   */
-  private static parseArrayContent(content: string): any {
-    const result: any = {};
-    let i = 0;
-    
-    while (i < content.length) {
-      // 跳过空白字符和注释
-      i = this.skipWhitespaceAndComments(content, i);
-      if (i >= content.length) break;
+  private static parseArrayContent(content: string): PHPArrayObject {
+    const result: PHPArrayObject = {};
+    let index = 0;
 
-      // 解析键
-      const keyResult = this.parseKey(content, i);
-      if (!keyResult) break;
-      
-      const key = keyResult.key;
-      i = keyResult.endIndex;
-
-      // 跳过 '=>'
-      i = this.skipWhitespaceAndComments(content, i);
-      if (content.substr(i, 2) === '=>') {
-        i += 2;
-        i = this.skipWhitespaceAndComments(content, i);
+    while (index < content.length) {
+      index = this.skipWhitespaceAndComments(content, index);
+      if (index >= content.length) {
+        break;
       }
 
-      // 解析值
-      const valueResult = this.parseValue(content, i);
-      if (!valueResult) break;
+      const keyResult = this.parseKey(content, index);
+      if (!keyResult) {
+        break;
+      }
 
-      result[key] = valueResult.value;
-      i = valueResult.endIndex;
+      index = keyResult.endIndex;
+      index = this.skipWhitespaceAndComments(content, index);
 
-      // 跳过逗号
-      i = this.skipWhitespaceAndComments(content, i);
-      if (content[i] === ',') {
-        i++;
+      if (content.slice(index, index + 2) === "=>") {
+        index += 2;
+        index = this.skipWhitespaceAndComments(content, index);
+      }
+
+      const valueResult = this.parseValue(content, index);
+      if (!valueResult) {
+        break;
+      }
+
+      result[keyResult.key] = valueResult.value;
+      index = valueResult.endIndex;
+      index = this.skipWhitespaceAndComments(content, index);
+
+      if (content[index] === ",") {
+        index += 1;
       }
     }
 
     return result;
   }
 
-  /**
-   * 跳过空白字符和注释
-   */
-  private static skipWhitespaceAndComments(content: string, index: number): number {
-    while (index < content.length) {
-      const char = content[index];
-      if (/\s/.test(char)) {
-        index++;
-      } else if (content.substr(index, 2) === '//') {
-        // 跳过单行注释
-        while (index < content.length && content[index] !== '\n') {
-          index++;
+  private static skipWhitespaceAndComments(content: string, index: number) {
+    let cursor = index;
+
+    while (cursor < content.length) {
+      if (/\s/.test(content[cursor])) {
+        cursor += 1;
+        continue;
+      }
+
+      if (content.slice(cursor, cursor + 2) === "//") {
+        while (cursor < content.length && content[cursor] !== "\n") {
+          cursor += 1;
         }
-      } else if (content.substr(index, 2) === '/*') {
-        // 跳过多行注释
-        index += 2;
-        while (index < content.length - 1) {
-          if (content.substr(index, 2) === '*/') {
-            index += 2;
+        continue;
+      }
+
+      if (content.slice(cursor, cursor + 2) === "/*") {
+        cursor += 2;
+        while (cursor < content.length - 1) {
+          if (content.slice(cursor, cursor + 2) === "*/") {
+            cursor += 2;
             break;
           }
-          index++;
+          cursor += 1;
         }
-      } else {
-        break;
+        continue;
       }
+
+      break;
     }
-    return index;
+
+    return cursor;
   }
 
-  /**
-   * 解析键
-   */
-  private static parseKey(content: string, index: number): { key: string; endIndex: number } | null {
+  private static parseKey(
+    content: string,
+    index: number
+  ): { key: string; endIndex: number } | null {
     const char = content[index];
-    
+
     if (char === '"' || char === "'") {
-      // 带引号的键
       const quote = char;
-      let i = index + 1;
-      let key = '';
-      
-      while (i < content.length && content[i] !== quote) {
-        if (content[i] === '\\') {
-          i++; // 跳过转义字符
-          if (i < content.length) {
-            key += content[i];
-          }
-        } else {
-          key += content[i];
+      let cursor = index + 1;
+      let key = "";
+
+      while (cursor < content.length && content[cursor] !== quote) {
+        if (content[cursor] === "\\") {
+          cursor += 1;
         }
-        i++;
+
+        if (cursor < content.length) {
+          key += content[cursor];
+          cursor += 1;
+        }
       }
-      
-      if (content[i] === quote) {
-        i++; // 跳过结束引号
+
+      if (content[cursor] === quote) {
+        cursor += 1;
       }
-      
-      return { key, endIndex: i };
-    } else {
-      // 无引号的键（数字或标识符）
-      let i = index;
-      let key = '';
-      
-      while (i < content.length && /[a-zA-Z0-9_]/.test(content[i])) {
-        key += content[i];
-        i++;
-      }
-      
-      return key ? { key, endIndex: i } : null;
+
+      return { key, endIndex: cursor };
     }
+
+    let cursor = index;
+    let key = "";
+    while (cursor < content.length && /[a-zA-Z0-9_]/.test(content[cursor])) {
+      key += content[cursor];
+      cursor += 1;
+    }
+
+    return key ? { key, endIndex: cursor } : null;
   }
 
-  /**
-   * 解析值
-   */
-  private static parseValue(content: string, index: number): { value: any; endIndex: number } | null {
+  private static parseValue(
+    content: string,
+    index: number
+  ): { value: PHPArrayValue; endIndex: number } | null {
     const char = content[index];
-    
+
     if (char === '"' || char === "'") {
-      // 字符串值
       const quote = char;
-      let i = index + 1;
-      let value = '';
-      
-      while (i < content.length && content[i] !== quote) {
-        if (content[i] === '\\') {
-          i++; // 跳过转义字符
-          if (i < content.length) {
-            value += content[i];
-          }
-        } else {
-          value += content[i];
+      let cursor = index + 1;
+      let value = "";
+
+      while (cursor < content.length && content[cursor] !== quote) {
+        if (content[cursor] === "\\") {
+          cursor += 1;
         }
-        i++;
+
+        if (cursor < content.length) {
+          value += content[cursor];
+          cursor += 1;
+        }
       }
-      
-      if (content[i] === quote) {
-        i++; // 跳过结束引号
+
+      if (content[cursor] === quote) {
+        cursor += 1;
       }
-      
-      return { value, endIndex: i };
-    } else if (char === '[') {
-      // 嵌套数组
-      let i = index + 1;
+
+      return { value, endIndex: cursor };
+    }
+
+    if (char === "[") {
+      let cursor = index + 1;
       let depth = 1;
-      let arrayContent = '';
-      
-      while (i < content.length && depth > 0) {
-        if (content[i] === '[') {
-          depth++;
-        } else if (content[i] === ']') {
-          depth--;
+      let nestedContent = "";
+
+      while (cursor < content.length && depth > 0) {
+        if (content[cursor] === "[") {
+          depth += 1;
+        } else if (content[cursor] === "]") {
+          depth -= 1;
         }
-        
+
         if (depth > 0) {
-          arrayContent += content[i];
+          nestedContent += content[cursor];
         }
-        i++;
+        cursor += 1;
       }
-      
-      const nestedValue = this.parseArrayContent(arrayContent);
-      return { value: nestedValue, endIndex: i };
-    } else {
-      // 其他值类型（数字、布尔值等）
-      let i = index;
-      let value = '';
-      
-      while (i < content.length && content[i] !== ',' && content[i] !== ']' && content[i] !== '\n') {
-        value += content[i];
-        i++;
-      }
-      
-      value = value.trim();
-      
-      // 尝试转换数字或布尔值
-      if (/^\d+$/.test(value)) {
-        return { value: parseInt(value), endIndex: i };
-      } else if (value === 'true') {
-        return { value: true, endIndex: i };
-      } else if (value === 'false') {
-        return { value: false, endIndex: i };
-      } else {
-        return { value, endIndex: i };
-      }
+
+      return {
+        value: this.parseArrayContent(nestedContent),
+        endIndex: cursor,
+      };
     }
+
+    let cursor = index;
+    let rawValue = "";
+    while (
+      cursor < content.length &&
+      content[cursor] !== "," &&
+      content[cursor] !== "]" &&
+      content[cursor] !== "\n"
+    ) {
+      rawValue += content[cursor];
+      cursor += 1;
+    }
+
+    const value = rawValue.trim();
+    if (/^\d+$/.test(value)) {
+      return { value: Number.parseInt(value, 10), endIndex: cursor };
+    }
+
+    if (value === "true") {
+      return { value: true, endIndex: cursor };
+    }
+
+    if (value === "false") {
+      return { value: false, endIndex: cursor };
+    }
+
+    return { value, endIndex: cursor };
   }
 
-  /**
-   * 将翻译结果重新组装成PHP数组格式
-   * @param structure 原始结构
-   * @param translations 翻译结果映射
-   * @returns PHP数组字符串
-   */
-  static buildPHPArray(structure: any, translations: Record<string, string>): string {
-    const buildLevel = (obj: any, prefix = '', indent = 1): string => {
-      const indentStr = '    '.repeat(indent);
+  private static escapePhpString(value: string) {
+    return value.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+  }
+
+  static buildPHPArray(
+    structure: PHPParseResult["structure"],
+    translations: Record<string, string>
+  ) {
+    const buildLevel = (value: PHPArrayObject, prefix = "", indent = 1): string => {
+      const indentStr = "    ".repeat(indent);
       const items: string[] = [];
 
-      for (const [key, value] of Object.entries(obj)) {
+      Object.entries(value).forEach(([key, childValue]) => {
         const fullKey = prefix ? `${prefix}.${key}` : key;
-        
-        if (typeof value === 'object' && value !== null) {
-          const nestedContent = buildLevel(value, fullKey, indent + 1);
-          items.push(`${indentStr}'${key}' => [\n${nestedContent}\n${indentStr}]`);
-        } else if (typeof value === 'string') {
-          const translatedValue = translations[fullKey] || value;
-          items.push(`${indentStr}'${key}' => '${translatedValue}'`);
-        }
-      }
 
-      return items.join(',\n');
+        if (childValue && typeof childValue === "object") {
+          const nestedContent = buildLevel(childValue, fullKey, indent + 1);
+          items.push(`${indentStr}'${key}' => [\n${nestedContent}\n${indentStr}]`);
+          return;
+        }
+
+        if (typeof childValue === "string") {
+          const translatedValue = translations[fullKey] ?? childValue;
+          items.push(
+            `${indentStr}'${key}' => '${this.escapePhpString(translatedValue)}'`
+          );
+          return;
+        }
+
+        items.push(`${indentStr}'${key}' => ${String(childValue)}`);
+      });
+
+      return items.join(",\n");
     };
 
     const content = buildLevel(structure.parsed);
@@ -323,33 +346,43 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
   appid,
   apiKey,
 }) => {
-  const [fromLang, setFromLang] = useState<string>("auto");
-  const [toLang, setToLang] = useState<string>("zh");
-  const [textData, setTextData] = useState<string>("");
+  const [fromLang, setFromLang] = useState("auto");
+  const [toLang, setToLang] = useState("zh");
+  const [textData, setTextData] = useState("");
   const [transResult, setTransResult] = useState<string | null>(null);
   const { isLoading, startLoading, stopLoading } = useTranslationLoading();
   const { message } = App.useApp();
   const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isExampleModalOpen, setIsExampleModalOpen] = useState(false);
-  const [selectedSuffix, setSelectedSuffix] = useState<string>("php");
-  
-  const EXAMPLE_FORMATS = getExampleFormats();
+  const [selectedSuffix, setSelectedSuffix] = useState("php");
+
+  const exampleFormats = getExampleFormats();
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  // 确认按钮触发的事件
-  const handleSuffixConfirm = (suffix: string) => {
-    setSelectedSuffix(suffix);
-    handleTranslate(true, suffix);
+  const detectInputFormat = (input: string): "php" | "json" => {
+    const trimmed = input.trim();
+    if (
+      trimmed.includes("<?php") ||
+      trimmed.includes("return [") ||
+      trimmed.includes("=>")
+    ) {
+      return "php";
+    }
+    return "json";
   };
 
-  // 复制翻译结果到剪贴板
+  const handleSuffixConfirm = (suffix: string) => {
+    setSelectedSuffix(suffix);
+    void handleTranslate(true, suffix);
+  };
+
   const handleCopyResult = async () => {
     if (!transResult) {
       message.warning({
-        content: "没有翻译结果可复制",
+        content: t("translation.noResultToCopy", "No translation result to copy"),
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
@@ -360,53 +393,96 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
     try {
       await navigator.clipboard.writeText(transResult);
       message.success({
-        content: "翻译结果已复制到剪贴板",
+        content: t("translation.copySuccess"),
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
       });
-    } catch (error) {
-      // 如果现代API失败，使用传统方法
-      const textArea = document.createElement('textarea');
+    } catch {
+      const textArea = document.createElement("textarea");
       textArea.value = transResult;
       document.body.appendChild(textArea);
       textArea.select();
+
       try {
-        document.execCommand('copy');
+        document.execCommand("copy");
         message.success({
-          content: "翻译结果已复制到剪贴板",
+          content: t("translation.copySuccess"),
           className: document.documentElement.classList.contains("dark")
             ? "message-dark"
             : "message-light",
         });
-      } catch (fallbackError) {
+      } catch {
         message.error({
-          content: "复制失败，请手动复制",
+          content: t("translation.copyError"),
           className: document.documentElement.classList.contains("dark")
             ? "message-dark"
             : "message-light",
         });
+      } finally {
+        document.body.removeChild(textArea);
       }
-      document.body.removeChild(textArea);
     }
   };
 
-  // 检测输入格式
-  const detectInputFormat = (input: string): 'php' | 'json' => {
-    const trimmed = input.trim();
-    if (trimmed.includes('<?php') || trimmed.includes('return [') || trimmed.includes('=>')) {
-      return 'php';
+  const translateChunk = async (query: string) => {
+    const response = await axios.post<TranslationChunkApiResponse>(
+      config.api.proxyApiUrl,
+      {
+        query,
+        from: fromLang,
+        to: toLang,
+        appid,
+        apiKey,
+      },
+      {
+        timeout: config.api.timeout,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = response.data;
+
+    if (!data.success || data.error) {
+      throw new Error(data.error?.message ?? "Translation request failed");
     }
-    return 'json';
+
+    if (!data.data?.trans_result) {
+      throw new Error("Translation result is empty");
+    }
+
+    return { trans_result: data.data.trans_result };
   };
 
-  const handleTranslate = async (
-    isDownload: boolean = false,
-    suffix?: string
-  ) => {
+  const downloadTranslation = (data: string, suffix?: string) => {
+    if (!suffix) {
+      message.error({
+        content: t("fileModal.selectFileFormat", "Please select a file format"),
+        className: document.documentElement.classList.contains("dark")
+          ? "message-dark"
+          : "message-light",
+      });
+      return;
+    }
+
+    const filename = `${toLang}_translation.${suffix}`;
+    const blob = new Blob([data], {
+      type: suffix === "php" ? "application/x-php" : "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleTranslate = async (isDownload = false, suffix?: string) => {
     if (!appid || !apiKey) {
       message.error({
-        content: "请先配置 App ID 和 Key！",
+        content: t("translation.pleaseInputCredentials"),
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
@@ -416,7 +492,7 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
 
     if (!textData.trim()) {
       message.error({
-        content: "请输入需要翻译的PHP数组数据！",
+        content: t("translation.fileError", "Please enter valid PHP content"),
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
@@ -427,12 +503,13 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
     try {
       startLoading();
 
-      // 解析PHP数组
       const { keys, values, structure } = PHPArrayParser.parsePHPArray(textData);
-      
       if (values.length === 0) {
         message.warning({
-          content: "未找到需要翻译的文本内容",
+          content: t(
+            "translation.fileError",
+            "No translatable text was found in the PHP array"
+          ),
           className: document.documentElement.classList.contains("dark")
             ? "message-dark"
             : "message-light",
@@ -440,164 +517,94 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
         return;
       }
 
-      // 分批翻译
+      const chunks: string[] = [];
       const chunkSize = 10;
-      const chunks = [];
-      for (let i = 0; i < values.length; i += chunkSize) {
-        chunks.push(values.slice(i, i + chunkSize).join("\n"));
+      for (let index = 0; index < values.length; index += chunkSize) {
+        chunks.push(values.slice(index, index + chunkSize).join("\n"));
       }
 
-      // 为了避免频率限制，添加延迟处理
-      const results = [];
-      for (let i = 0; i < chunks.length; i++) {
-        if (i > 0) {
-          // 每个请求之间延迟300ms，避免频率限制
-          await new Promise(resolve => setTimeout(resolve, 300));
+      const results: Array<{ trans_result: Array<{ dst: string }> }> = [];
+      for (let index = 0; index < chunks.length; index += 1) {
+        if (index > 0) {
+          await new Promise((resolve) => setTimeout(resolve, 300));
         }
-        const result = await translateChunk(chunks[i]);
-        results.push(result);
+
+        results.push(await translateChunk(chunks[index]));
       }
-      
-      const translatedValues = results.flatMap(
-        (result) => result.trans_result?.map((res: { dst: string }) => res.dst) || []
+
+      const translatedValues = results.flatMap((result) =>
+        result.trans_result.map((entry) => entry.dst)
       );
 
-      // 构建翻译映射
       const translations: Record<string, string> = {};
       keys.forEach((key, index) => {
-        translations[key] = translatedValues[index] || values[index];
+        translations[key] = translatedValues[index] ?? values[index];
       });
 
-      // 自动检测输入格式并生成对应输出
       const detectedFormat = detectInputFormat(textData);
-      let output = "";
-      
-      if (detectedFormat === "php") {
-        output = PHPArrayParser.buildPHPArray(structure, translations);
-        // 自动设置下载格式为php
-        if (!selectedSuffix || selectedSuffix !== "php") {
-          setSelectedSuffix("php");
-        }
-      } else {
-        const jsonObj: any = {};
-        keys.forEach((key, index) => {
-          jsonObj[key] = translatedValues[index] || values[index];
-        });
-        output = JSON.stringify(jsonObj, null, 2);
-        // 自动设置下载格式为json
-        if (!selectedSuffix || selectedSuffix !== "json") {
-          setSelectedSuffix("json");
-        }
-      }
+      const output =
+        detectedFormat === "php"
+          ? PHPArrayParser.buildPHPArray(structure, translations)
+          : JSON.stringify(translations, null, 2);
 
+      setSelectedSuffix(detectedFormat === "php" ? "php" : "json");
       setTransResult(output);
 
       if (isDownload) {
-        downloadTranslation(output, suffix || selectedSuffix);
+        downloadTranslation(
+          output,
+          suffix ?? (detectedFormat === "php" ? "php" : "json")
+        );
       }
 
       message.success({
-        content: t('translation.phpTranslateSuccess', { count: translatedValues.length }),
+        content: t("translation.phpTranslateSuccess", {
+          count: translatedValues.length,
+        }),
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
       });
-
-    } catch (error: any) {
+    } catch (error) {
+      const content =
+        error instanceof Error
+          ? error.message
+          : t("translation.phpTranslateFailed");
       message.error({
-        content: error.message || t('translation.phpTranslateFailed'),
+        content,
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
       });
-      console.error("PHP翻译错误:", error);
+      console.error("PHP translation error:", error);
     } finally {
       stopLoading();
     }
   };
 
-  const translateChunk = async (query: string) => {
-    try {
-      const response = await axios.post(config.api.proxyApiUrl, {
-        query,
-        from: fromLang,
-        to: toLang,
-        appid,
-        apiKey,
-      }, {
-        timeout: config.api.timeout,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = response.data;
-      
-      if (!data.success || data.error) {
-        throw new Error(data.error?.message || '翻译请求失败');
-      }
-
-      if (!data.data?.trans_result) {
-        throw new Error('翻译结果为空');
-      }
-
-      return { trans_result: data.data.trans_result };
-    } catch (error: any) {
-      console.error('翻译请求失败:', error);
-      throw error;
-    }
-  };
-
-  // 下载文件功能
-  const downloadTranslation = (
-    data: string,
-    suffix?: string
-  ) => {
-    if (!suffix) {
-      message.error({
-        content: "请选择文件后缀名",
-        className: document.documentElement.classList.contains("dark")
-          ? "message-dark"
-          : "message-light",
-      });
-      return;
-    }
-
-    const filename = `${toLang}_translation.${suffix}`;
-    const blob = new Blob([data], { 
-      type: suffix === 'php' ? 'application/x-php' : 'application/json' 
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   return (
     <>
       <Title level={5} className="mt-2">
-        {t('translation.selectLanguageAndInputPHP', '🧭请选择目标语言和输入你需要翻译的PHP数组⬇')}
+        {t("translation.selectLanguageAndInputPHP")}
       </Title>
       <Space wrap>
         <LanguageSelect
           value={fromLang}
           onChange={setFromLang}
           showAutoDetect={true}
-          label="源语言"
+          label="Source"
         />
         <LanguageSelect
           showAutoDetect={false}
           value={toLang}
           onChange={setToLang}
-          label="目标语言"
+          label="Target"
         />
       </Space>
 
-      <div className="flex justify-between items-center mt-4 mb-2">
+      <div className="mt-4 mb-2 flex items-center justify-between">
         <span className="text-sm text-gray-600 dark:text-gray-400">
-          {t('translation.dontKnowHowToInput')}
+          {t("translation.dontKnowHowToInput")}
         </span>
         <Button
           type="link"
@@ -606,16 +613,16 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
           onClick={() => setIsExampleModalOpen(true)}
           className="text-blue-500 hover:text-blue-600"
         >
-          {t('translation.viewExample')}
+          {t("translation.viewExample")}
         </Button>
       </div>
 
       <ExampleFormatModal
         open={isExampleModalOpen}
         onCancel={() => setIsExampleModalOpen(false)}
-        title={EXAMPLE_FORMATS.php.title}
-        description={EXAMPLE_FORMATS.php.description}
-        example={EXAMPLE_FORMATS.php.example}
+        title={exampleFormats.php.title}
+        description={exampleFormats.php.description}
+        example={exampleFormats.php.example}
         mode="php"
       />
 
@@ -624,67 +631,75 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
         onCancel={closeModal}
         onSuffixSelect={handleSuffixConfirm}
         toLang={toLang}
-        defaultSuffix={detectInputFormat(textData) === 'php' ? 'php' : 'json'}
+        defaultSuffix={detectInputFormat(textData) === "php" ? "php" : "json"}
         defaultExport="No"
       />
 
       <TextArea
         allowClear
         value={textData}
-        onChange={(e) => setTextData(e.target.value)}
-        onKeyDown={(e) => {
-          if (!shouldSubmitOnEnter(e)) {
+        onChange={(event) => setTextData(event.target.value)}
+        onKeyDown={(event) => {
+          if (!shouldSubmitOnEnter(event)) {
             return;
           }
 
-          e.preventDefault();
+          event.preventDefault();
           if (!isLoading) {
-            handleTranslate(false);
+            void handleTranslate(false);
           }
         }}
-        placeholder={EXAMPLE_FORMATS.php.placeholder}
+        placeholder={exampleFormats.php.placeholder}
         autoSize={{ minRows: 8, maxRows: 15 }}
         className="mt-4"
         showCount
         maxLength={20000}
       />
-      <div className="flex justify-start mt-1">
-        <span className="text-xs text-gray-400 dark:text-gray-500 select-none">
-          {t('translation.keyboardHint', '↵ Enter 提交翻译 · Shift + Enter 换行')}
+      <div className="mt-1 flex justify-start">
+        <span className="select-none text-xs text-gray-400 dark:text-gray-500">
+          {t(
+            "translation.keyboardHint",
+            "Enter to submit, Shift + Enter for a new line"
+          )}
         </span>
       </div>
 
       <Space>
         <Button
           type="primary"
-          onClick={() => handleTranslate(false)}
+          onClick={() => void handleTranslate(false)}
           className="mt-4"
           loading={isLoading}
         >
-          {isLoading ? t('translation.translating') : t('translation.directTranslate')}
+          {isLoading
+            ? t("translation.translating")
+            : t("translation.directTranslate")}
         </Button>
-        <Button 
-          type="primary" 
-          onClick={openModal} 
+        <Button
+          type="primary"
+          onClick={openModal}
           className="mt-4"
           loading={isLoading}
         >
-          {isLoading ? t('translation.translating') : `${t('translation.translateAndDownload')} ${toLang}.${selectedSuffix}`}
+          {isLoading
+            ? t("translation.translating")
+            : `${t("translation.translateAndDownload")} ${toLang}.${selectedSuffix}`}
         </Button>
       </Space>
-      
-       {isLoading && !transResult && (
-         <div className="mt-4 text-center">
-           <div className="text-lg">{t('translation.translatingPHP', '正在为你翻译PHP数组模式请稍等...')}</div>
-         </div>
-       )}
-      
-      {/* 翻译结果 */}
+
+      {isLoading && !transResult && (
+        <div className="mt-4 text-center">
+          <div className="text-lg">{t("translation.translatingPHP")}</div>
+        </div>
+      )}
+
       {transResult && (
         <>
-          <div className="flex items-center justify-between mt-4">
+          <div className="mt-4 flex items-center justify-between">
             <Title level={5} className="mb-0">
-              {t('translation.translationResultWithFormat', '🧭翻译结果 ({format})⬇', { format: detectInputFormat(textData).toUpperCase() })}
+              {t("translation.translationResultWithFormat", {
+                format: detectInputFormat(textData).toUpperCase(),
+              })}
             </Title>
             <Button
               type="text"
@@ -693,18 +708,18 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
               className="flex items-center text-blue-500 hover:text-blue-600"
               size="small"
             >
-              {t('translation.copyResult')}
+              {t("translation.copyResult")}
             </Button>
           </div>
           <Paragraph
             copyable
-            className="p-4 rounded mt-4 whitespace-pre-wrap font-mono text-sm"
-            style={{ 
-              backgroundColor: document.documentElement.classList.contains("dark") 
-                ? "#1f1f1f" 
+            className="mt-4 whitespace-pre-wrap rounded p-4 font-mono text-sm"
+            style={{
+              backgroundColor: document.documentElement.classList.contains("dark")
+                ? "#1f1f1f"
                 : "#f5f5f5",
               maxHeight: "400px",
-              overflowY: "auto"
+              overflowY: "auto",
             }}
           >
             {transResult}
@@ -715,10 +730,7 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
   );
 };
 
-const TranslatePHP: React.FC<TextTranslationProps> = ({
-  appid,
-  apiKey,
-}) => (
+const TranslatePHP: React.FC<TextTranslationProps> = ({ appid, apiKey }) => (
   <App>
     <PHPTranslationComponent appid={appid} apiKey={apiKey} />
   </App>

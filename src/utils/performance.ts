@@ -40,7 +40,7 @@ export class PerformanceMonitor {
    * @param name 监控名称
    */
   static start(name: string): void {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       this.metrics.set(name, {
         name,
         startTime: performance.now(),
@@ -54,7 +54,7 @@ export class PerformanceMonitor {
    * @returns 持续时间（毫秒）
    */
   static end(name: string): number | undefined {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       const metric = this.metrics.get(name);
       if (metric) {
         const endTime = performance.now();
@@ -128,7 +128,7 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout;
+  let timeout: ReturnType<typeof setTimeout>;
   
   return function executedFunction(...args: Parameters<T>) {
     const later = () => {
@@ -167,7 +167,7 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
  * 仅在开发环境中工作
  */
 export function logMemoryUsage(): void {
-  if (process.env.NODE_ENV === 'development' && 'memory' in performance) {
+  if (import.meta.env.DEV && 'memory' in performance) {
     const memory = (performance as PerformanceWithMemory).memory;
     console.log('🧠 Memory Usage:', {
       used: `${Math.round(memory.usedJSHeapSize / 1024 / 1024)} MB`,
@@ -196,7 +196,7 @@ function safeTimeDiff(end: number, start: number): number {
  * 页面加载性能监控
  */
 export function logPageLoadPerformance(): void {
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     window.addEventListener('load', () => {
       setTimeout(() => {
         try {

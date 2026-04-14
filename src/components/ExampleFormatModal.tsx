@@ -11,8 +11,18 @@ export interface ExampleFormatModalProps {
   title: string;
   description: string;
   example: string;
-  mode: 'text' | 'simpleJSON' | 'complexJSON' | 'php';
+  mode: "text" | "simpleJSON" | "complexJSON" | "php";
 }
+
+const MODE_CONFIG: Record<
+  ExampleFormatModalProps["mode"],
+  { icon: string; color: string }
+> = {
+  text: { icon: "T", color: "#1890ff" },
+  simpleJSON: { icon: "{}", color: "#52c41a" },
+  complexJSON: { icon: "{...}", color: "#fa8c16" },
+  php: { icon: "PHP", color: "#722ed1" },
+};
 
 const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
   open,
@@ -25,65 +35,49 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
   const { message } = App.useApp();
   const { t } = useTranslation();
 
-  // 复制案例格式到剪贴板
   const handleCopyExample = async () => {
     try {
       await navigator.clipboard.writeText(example);
       message.success({
-        content: t('translation.exampleCopied', '案例格式已复制到剪贴板'),
+        content: t("translation.exampleCopied"),
         className: document.documentElement.classList.contains("dark")
           ? "message-dark"
           : "message-light",
       });
-    } catch (error) {
-      // 如果现代API失败，使用传统方法
-      const textArea = document.createElement('textarea');
+    } catch {
+      const textArea = document.createElement("textarea");
       textArea.value = example;
       document.body.appendChild(textArea);
       textArea.select();
+
       try {
-        document.execCommand('copy');
+        document.execCommand("copy");
         message.success({
-          content: t('translation.exampleCopied', '案例格式已复制到剪贴板'),
+          content: t("translation.exampleCopied"),
           className: document.documentElement.classList.contains("dark")
             ? "message-dark"
             : "message-light",
         });
       } catch {
         message.error({
-          content: t('translation.copyError'),
+          content: t("translation.copyError"),
           className: document.documentElement.classList.contains("dark")
             ? "message-dark"
             : "message-light",
         });
+      } finally {
+        document.body.removeChild(textArea);
       }
-      document.body.removeChild(textArea);
     }
   };
 
-  // 根据模式设置不同的图标和颜色
-  const getModeConfig = () => {
-    switch (mode) {
-      case 'text':
-        return { icon: '📝', color: '#1890ff' };
-      case 'simpleJSON':
-        return { icon: '📄', color: '#52c41a' };
-      case 'complexJSON':
-        return { icon: '🔗', color: '#fa8c16' };
-      case 'php':
-        return { icon: '🐘', color: '#722ed1' };
-      default:
-        return { icon: '📋', color: '#1890ff' };
-    }
-  };
-
-  const config = getModeConfig();
+  const config = MODE_CONFIG[mode];
 
   return (
     <Modal
       title={
         <div className="flex items-center gap-2">
-          <span style={{ fontSize: '20px' }}>{config.icon}</span>
+          <span style={{ fontSize: "20px" }}>{config.icon}</span>
           <span style={{ color: config.color }}>{title}</span>
         </div>
       }
@@ -92,24 +86,24 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
       width={700}
       footer={[
         <Button key="close" onClick={onCancel}>
-          {t('common.close')}
-        </Button>
+          {t("common.close")}
+        </Button>,
       ]}
       className="example-format-modal"
     >
       <div className="space-y-4">
-        <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border-l-4 border-blue-400">
+        <div className="rounded-lg border-l-4 border-blue-400 bg-blue-50 p-3 dark:bg-blue-900/20">
           <div className="flex items-start gap-2">
-            <span className="text-blue-500 mt-0.5">🌐</span>
-            <p className="text-blue-700 dark:text-blue-300 m-0">{description}</p>
+            <span className="mt-0.5 text-blue-500">i</span>
+            <p className="m-0 text-blue-700 dark:text-blue-300">{description}</p>
           </div>
         </div>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-gray-600 dark:text-gray-400">🖨</span>
+            <span className="text-gray-600 dark:text-gray-400">#</span>
             <Title level={5} className="m-0">
-              {t('translation.exampleFormat')}：
+              {t("translation.exampleFormat")}
             </Title>
           </div>
           <Button
@@ -119,7 +113,7 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
             className="flex items-center text-blue-500 hover:text-blue-600"
             size="small"
           >
-            {t('translation.copyExample')}
+            {t("translation.copyExample")}
           </Button>
         </div>
 
@@ -127,31 +121,39 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
           <Paragraph
             copyable={{
               icon: [
-                <CopyOutlined key="copy" className="text-gray-500 hover:text-blue-500" />,
-                <span key="copied" className="text-green-500 text-xs">{t('common.copied', '已复制')}</span>
+                <CopyOutlined
+                  key="copy"
+                  className="text-gray-500 hover:text-blue-500"
+                />,
+                <span key="copied" className="text-xs text-green-500">
+                  {t("common.copied", "Copied")}
+                </span>,
               ],
               text: example,
-              tooltips: [t('common.copyCode', '复制代码'), t('common.copied', '已复制')],
+              tooltips: [
+                t("common.copyCode", "Copy code"),
+                t("common.copied", "Copied"),
+              ],
             }}
-            className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg font-mono text-sm whitespace-pre-wrap border"
+            className="whitespace-pre-wrap rounded-lg border bg-gray-50 p-4 font-mono text-sm dark:bg-gray-800"
             style={{
               marginBottom: 0,
-              maxHeight: '400px',
-              overflowY: 'auto',
-              lineHeight: '1.5',
+              maxHeight: "400px",
+              overflowY: "auto",
+              lineHeight: "1.5",
             }}
           >
             {example}
           </Paragraph>
         </div>
 
-        <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border-l-4 border-green-400">
+        <div className="rounded-lg border-l-4 border-green-400 bg-green-50 p-3 dark:bg-green-900/20">
           <div className="flex items-start gap-2">
-            <span className="text-green-500 mt-0.5">💡</span>
+            <span className="mt-0.5 text-green-500">+</span>
             <div className="text-green-700 dark:text-green-300">
-              <p className="m-0 font-medium">{t('translation.usageTips')}：</p>
+              <p className="m-0 font-medium">{t("translation.usageTips")}</p>
               <p className="m-0 mt-1 text-sm">
-                {t('translation.usageDescription')}
+                {t("translation.usageDescription")}
               </p>
             </div>
           </div>
