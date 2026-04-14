@@ -10,6 +10,7 @@ import { TextTranslationProps } from "@/types/textTranslation";
 import { useTranslationLoading } from "@/hooks/useTranslationLoading";
 import { config } from "@/config/env";
 import { getExampleFormats } from "@/constants/exampleFormats";
+import { shouldSubmitOnEnter } from "@/utils/submitOnEnter";
 
 const { TextArea } = Input;
 const { Paragraph, Title } = Typography;
@@ -631,12 +632,27 @@ const PHPTranslationComponent: React.FC<TextTranslationProps> = ({
         allowClear
         value={textData}
         onChange={(e) => setTextData(e.target.value)}
+        onKeyDown={(e) => {
+          if (!shouldSubmitOnEnter(e)) {
+            return;
+          }
+
+          e.preventDefault();
+          if (!isLoading) {
+            handleTranslate(false);
+          }
+        }}
         placeholder={EXAMPLE_FORMATS.php.placeholder}
         autoSize={{ minRows: 8, maxRows: 15 }}
         className="mt-4"
         showCount
         maxLength={20000}
       />
+      <div className="flex justify-start mt-1">
+        <span className="text-xs text-gray-400 dark:text-gray-500 select-none">
+          {t('translation.keyboardHint', '↵ Enter 提交翻译 · Shift + Enter 换行')}
+        </span>
+      </div>
 
       <Space>
         <Button

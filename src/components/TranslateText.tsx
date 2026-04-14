@@ -8,6 +8,7 @@ import { TextTranslationProps } from "@/types/textTranslation";
 import { useTranslationLoading } from "@/hooks/useTranslationLoading";
 import TranslationService from "@/services/translationService";
 import { getExampleFormats } from "@/constants/exampleFormats";
+import { shouldSubmitOnEnter } from "@/utils/submitOnEnter";
 
 const { TextArea } = Input;
 const { Paragraph, Title } = Typography;
@@ -174,7 +175,7 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
         onChange={(e) => setTextData(e.target.value)}
         onKeyDown={(e) => {
           // Enter 提交，Shift+Enter 换行（默认行为）
-          if (e.key === 'Enter' && !e.shiftKey) {
+          if (shouldSubmitOnEnter(e)) {
             e.preventDefault();
             if (!isLoading) {
               handleTranslate();
