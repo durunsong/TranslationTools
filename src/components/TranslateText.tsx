@@ -145,7 +145,7 @@ const TextTranslationComponent: React.FC<TextTranslationProps> = ({
         />
       </Space>
 
-      <div className="flex justify-between items-center mt-4 mb-2">
+      <div className="mt-4 mb-2 flex items-center justify-between md:justify-start md:gap-[40px]">
         <span className="text-sm text-gray-600 dark:text-gray-400">
           {t('translation.dontKnowHowToInput', '💡 不知道如何输入？')}
         </span>
