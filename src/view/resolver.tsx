@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Typography, Segmented, Space, Input, Button, App } from "antd";
 import { useTranslation } from "react-i18next";
 import TranslateText from "@/components/TranslateText";
@@ -59,9 +59,18 @@ const CredentialsSection: React.FC<CredentialsSectionProps> = ({
 
 const ResolveComponent: React.FC = () => {
   const [mode, setMode] = useState<TranslationMode>("textMode");
+  const modeChangeFrameRef = useRef<number | null>(null);
   const { appid, apiKey, setCredentials } = useCredentialsStore();
   const { message } = App.useApp();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    return () => {
+      if (modeChangeFrameRef.current !== null) {
+        cancelAnimationFrame(modeChangeFrameRef.current);
+      }
+    };
+  }, []);
 
   const handleSaveCredentials = (nextAppid: string, nextApiKey: string) => {
     if (nextAppid && nextApiKey) {
@@ -98,6 +107,19 @@ const ResolveComponent: React.FC = () => {
     }
   };
 
+  const handleModeChange = (value: string | number) => {
+    const nextMode = value as TranslationMode;
+
+    if (modeChangeFrameRef.current !== null) {
+      cancelAnimationFrame(modeChangeFrameRef.current);
+    }
+
+    modeChangeFrameRef.current = requestAnimationFrame(() => {
+      setMode(nextMode);
+      modeChangeFrameRef.current = null;
+    });
+  };
+
   return (
     <div className="flex flex-col">
       <CredentialsSection
@@ -112,8 +134,8 @@ const ResolveComponent: React.FC = () => {
         </Title>
         <Segmented
           size="large"
-          value={mode}
-          onChange={(value) => setMode(value as TranslationMode)}
+          defaultValue={mode}
+          onChange={handleModeChange}
           options={[
             { label: t("modes.textMode"), value: "textMode" },
             { label: t("modes.simpleJSONMode"), value: "simpleJSONMode" },
