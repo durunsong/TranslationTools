@@ -75,6 +75,8 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
 
   return (
     <Modal
+      centered={false}
+      style={{ top: 40 }}
       title={
         <div className="flex items-center gap-2">
           <span style={{ fontSize: "20px" }}>{config.icon}</span>
@@ -101,8 +103,10 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-gray-600 dark:text-gray-400">#</span>
-            <Title level={5} className="m-0">
+            <span className="flex shrink-0 items-center leading-none text-gray-600 dark:text-gray-400">
+              #
+            </span>
+            <Title level={5} className="!m-0 inline-flex items-center leading-none">
               {t("translation.exampleFormat")}
             </Title>
           </div>
@@ -110,8 +114,7 @@ const ExampleFormatModal: React.FC<ExampleFormatModalProps> = ({
             type="text"
             icon={<CopyOutlined />}
             onClick={handleCopyExample}
-            className="flex items-center text-blue-500 hover:text-blue-600"
-            size="small"
+            className="inline-flex h-8 items-center justify-center gap-1 px-2 text-blue-500 hover:text-blue-600 [&_.ant-btn-icon]:flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:leading-none"
           >
             {t("translation.copyExample")}
           </Button>

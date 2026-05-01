@@ -7,11 +7,21 @@ import { useTranslation } from "react-i18next";
 const { Option } = Select;
 
 const ChineseIcon: React.FC = () => (
-  <span style={{ fontSize: '16px', marginRight: '6px' }}>🇨🇳</span>
+  <span
+    className="mr-1.5 inline-flex shrink-0 items-center justify-center text-base leading-none"
+    aria-hidden
+  >
+    🇨🇳
+  </span>
 );
 
 const EnglishIcon: React.FC = () => (
-  <span style={{ fontSize: '16px', marginRight: '6px' }}>🇺🇸</span>
+  <span
+    className="mr-1.5 inline-flex shrink-0 items-center justify-center text-base leading-none"
+    aria-hidden
+  >
+    🇺🇸
+  </span>
 );
 
 const LanguageSwitcher: React.FC = () => {
@@ -25,6 +35,7 @@ const LanguageSwitcher: React.FC = () => {
 
   return (
     <Select
+      className="language-switcher"
       value={language}
       onChange={handleLanguageChange}
       style={{ 

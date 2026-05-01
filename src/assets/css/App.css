@@ -46,6 +46,18 @@
   color: #fff; 
 }
 
+/* Header language Select: vertically center flag + label in trigger */
+.language-switcher.ant-select .ant-select-selector {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.language-switcher.ant-select .ant-select-selection-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 1 !important;
+}
+
 @media (max-width: 768px) {
   .ant-layout-content {
     padding: 8px !important;
